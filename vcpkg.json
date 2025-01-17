@@ -9,9 +9,6 @@
       "name": "grpc"
     },
     {
-      "name": "cpp-redis"
-    },
-    {
       "name": "spdlog"
     }
   ]
