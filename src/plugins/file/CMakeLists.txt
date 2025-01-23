@@ -1,9 +1,10 @@
+# file 文件服务器模块，管理文件上传下载，游戏资源分发等
 cmake_minimum_required(VERSION 3.8)
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED True)
 
 # 定义常量
-project("poor_client_stl" VERSION 1.0)
+project("file_plugin" VERSION 1.0)
 set(CMAKE_PREFIX_PATH "${CMAKE_SOURCE_DIR}/vcpkg_installed/x64-windows")
 set(VCPKG_INCLUDE "${CMAKE_PREFIX_PATH}/include")
 set(VCPKG_LIB "${CMAKE_PREFIX_PATH}/lib")
@@ -20,9 +21,10 @@ include_directories(
     ${VCPKG_INCLUDE}     # 第三方库的头文件所在目录
     # 共享工具类
     ${CMAKE_SOURCE_DIR}/src/common
-    # 主模块及功能实现类
-    ${CMAKE_SOURCE_DIR}/src/gateway
-    ${CMAKE_SOURCE_DIR}/src/user
+    # 插件模块
+    ${CMAKE_SOURCE_DIR}/src/plugins/file
+    ${CMAKE_SOURCE_DIR}/src/plugins/logic
+    ${CMAKE_SOURCE_DIR}/src/plugins/common
     # proto生成的 grpc服务头文件目录
     ${CMAKE_SOURCE_DIR}/protobuf/central
     ${CMAKE_SOURCE_DIR}/protobuf/data
@@ -34,20 +36,17 @@ include_directories(
 
 # 需要编译的源文件列表
 set(SOURCES
-    src/main.cpp
-    # 主模块功能实现类
-    ${CMAKE_SOURCE_DIR}/src/gateway/gateway_server.cpp
-    ${CMAKE_SOURCE_DIR}/src/user/login_server.cpp
-    # 公共模块
-    ${CMAKE_SOURCE_DIR}/src/common/logger_manager.cpp
-    ${CMAKE_SOURCE_DIR}/src/common/plugin_manager.cpp
+    ${PROJECT_SOURCE_DIR}/src/plugin/file/file_server.cpp
+    ${PROJECT_SOURCE_DIR}/src/plugin/file/file_plugin.cpp
+    # 共享工具类
+    ${PROJECT_SOURCE_DIR}/src/common/logger_manager.cpp
+    # proto生成的源文件
+    ${PROJECT_SOURCE_DIR}/protobuf/file/server_file.pb.cc
+    ${PROJECT_SOURCE_DIR}/protobuf/file/server_file.grpc.pb.cc
 )
 
-# 指定编译生成的可执行文件信息：文件名${PROJECT_NAME} ，${SOURCES} 项目所有源文件路径
-add_executable(${PROJECT_NAME} ${SOURCES})
-
-# 设置编译选项
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /wd4244 /wd4251 /wd4828 /utf-8")   # 忽略警告，使用utf-8编码
+# 指定编译生成的可执行文件信息：文件名${MODULE_NAME} ，${SOURCES} 项目所有源文件路径
+add_library(${PROJECT_NAME} SHARED ${SOURCES})
 
 # 自动寻找第三方库 lib列表
 find_package(absl REQUIRED)
@@ -67,7 +66,7 @@ find_library(ADDRESS_SORTING_LIB address_sorting PATHS "${VCPKG_LIB}")  # addres
 # 下面文件需要直接在子模块中使用路径引入
 
 # 链接第三方库lib
-target_link_libraries(${PROJECT_NAME} PRIVATE
+target_link_libraries(${PROJECT_NAME} PRIVATE 
 # 注释了一些暂时不需要的库
 #    absl::base
 #    absl::flags
@@ -81,8 +80,8 @@ target_link_libraries(${PROJECT_NAME} PRIVATE
 #    ZLIB::ZLIB
 #    upb::upb
     gRPC::grpc++
+    lua
     spdlog::spdlog
-    Threads::Threads
     ${ADDRESS_SORTING_LIB}  # address_sorting 库：用于gRPC的地址排序
 )
 
@@ -109,5 +108,5 @@ foreach(DLL_FILE ${DLL_FILES})
     )
 endforeach()
 
-# 安装可执行文件到 install/x64-Debug/bin 目录
-install(TARGETS ${PROJECT_NAME} DESTINATION bin)
+# 安装可执行文件到 plugin 目录
+install(TARGETS ${PROJECT_NAME} DESTINATION plugin)
