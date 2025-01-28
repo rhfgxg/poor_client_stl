@@ -15,9 +15,6 @@ if(NOT DEFINED CMAKE_TOOLCHAIN_FILE)    # 防止环境中定义了此变量
     set(CMAKE_TOOLCHAIN_FILE "D:/opt/tools/cpp/vcpkg/scripts/buildsystems/vcpkg.cmake" CACHE STRING "Vcpkg toolchain file")
 endif()
 
-# 包含子模块
-add_subdirectory(protobuf)
-
 # 头文件的路径列表
 include_directories(
     ${VCPKG_INCLUDE}     # 第三方库的头文件所在目录
@@ -30,7 +27,7 @@ include_directories(
     ${CMAKE_SOURCE_DIR}/src/plugins/file
     ${CMAKE_SOURCE_DIR}/src/plugins/logic
     # proto生成的 grpc服务头文件目录
-    ${CMAKE_BINARY_DIR}
+     ${CMAKE_SOURCE_DIR}/protobuf/src
 )
 # 需要编译的源文件列表
 set(SOURCES
@@ -42,8 +39,12 @@ set(SOURCES
     ${CMAKE_SOURCE_DIR}/src/common/logger_manager.cpp
     ${CMAKE_SOURCE_DIR}/src/common/plugin_manager.cpp
     # proto生成的源文件
-    ${PROTO_SRCS}
-    ${GRPC_SRCS}
+    ${CMAKE_SOURCE_DIR}/protobuf/src/common.grpc.pb.cc
+    ${CMAKE_SOURCE_DIR}/protobuf/src/common.pb.cc
+    ${CMAKE_SOURCE_DIR}/protobuf/src/server_gateway.grpc.pb.cc
+    ${CMAKE_SOURCE_DIR}/protobuf/src/server_gateway.pb.cc
+    ${CMAKE_SOURCE_DIR}/protobuf/src/server_login.grpc.pb.cc
+    ${CMAKE_SOURCE_DIR}/protobuf/src/server_login.pb.cc
 )
 # 指定编译生成的可执行文件信息：文件名${PROJECT_NAME} ，${SOURCES} 项目所有源文件路径
 add_executable(${PROJECT_NAME} ${SOURCES})
@@ -81,8 +82,8 @@ target_link_libraries(${PROJECT_NAME} PRIVATE
 #    OpenSSL::Crypto
 #    protobuf::libprotobuf
 #    re2::re2
-#    ZLIB::ZLIB
 #    upb::upb
+#    ZLIB::ZLIB
     dlfcn-win32    # win 动态库操作接口（在 linux ios默认支持）
     gRPC::grpc++
     spdlog::spdlog

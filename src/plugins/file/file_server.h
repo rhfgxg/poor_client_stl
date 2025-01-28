@@ -1,7 +1,8 @@
 #ifndef FILE_SERVER_H
 #define FILE_SERVER_H
 
-#include "../../../protobuf/file/server_file.grpc.pb.h"
+#include "../../../protobuf/src/common.grpc.pb.h" // 公共文件：包含服务类型等
+#include "../../../protobuf/src/server_file.grpc.pb.h"  // 文件服务
 #include "logger_manager.h"     // 日志管理器
 
 #include <grpcpp/grpcpp.h>

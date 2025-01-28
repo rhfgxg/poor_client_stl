@@ -1,7 +1,7 @@
 syntax = "proto3";
 package rpc_server;
 
-import "common/common.proto";
+import "common.proto";  // 引入公共数据类型
 
 // 网关服务器
 service GatewayServer

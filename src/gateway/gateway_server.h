@@ -3,7 +3,6 @@
 
 #include "common.grpc.pb.h" // 公共文件：包含服务类型等
 #include "server_gateway.grpc.pb.h" // 网关服务器
-#include "server_central.grpc.pb.h" // 中心服务器文件：上传心跳包
 #include "logger_manager.h"     // 日志管理器
 #include "plugin_manager.h"     // 插件管理器
 #include "file_plugin.h"        // 文件服务器
@@ -48,8 +47,8 @@ private:
     LoggerManager& logger_manager;  // 日志管理器
     PluginManager plugin_manager;   // 插件管理器
 
-    // 网关服务器链接
-
+    // 网关服务器连接池
+    
     std::vector<std::thread> thread_pool;   // 线程池
     std::queue<std::function<void()>> task_queue;    // 任务队列
     std::mutex queue_mutex; // 任务队列互斥锁
