@@ -1,9 +1,12 @@
 #ifndef GATEWAY_SERVER_H
 #define GATEWAY_SERVER_H
 
-#include "server_gateway.grpc.pb.h"
+#include "common.grpc.pb.h" // 公共文件：包含服务类型等
+#include "server_gateway.grpc.pb.h" // 网关服务器
+#include "server_central.grpc.pb.h" // 中心服务器文件：上传心跳包
 #include "logger_manager.h"     // 日志管理器
 #include "plugin_manager.h"     // 插件管理器
+#include "file_plugin.h"        // 文件服务器
 
 #include <grpcpp/grpcpp.h>
 #include <thread>
@@ -13,7 +16,7 @@
 #include <condition_variable>
 #include <future>
 
-// 网关服务器对外接口
+// 网络模块：负责与服务器通信，心跳等
 class GatewayServerImpl final: public rpc_server::GatewayServer::Service
 {
 public:
@@ -44,6 +47,8 @@ private:
 private:
     LoggerManager& logger_manager;  // 日志管理器
     PluginManager plugin_manager;   // 插件管理器
+
+    // 网关服务器链接
 
     std::vector<std::thread> thread_pool;   // 线程池
     std::queue<std::function<void()>> task_queue;    // 任务队列

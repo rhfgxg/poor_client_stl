@@ -1,9 +1,10 @@
 #include "logger_manager.h"
 
-void LoggerManager::initialize(rpc_server::ServerType server_type)
+void LoggerManager::initialize()
 {
     // 创建日志文件夹
-    this->Create_log_directory(server_type);
+    this->log_directory = "../../logs/";
+    std::filesystem::create_directories(this->log_directory); 
 
     // 创建控制台日志器
     auto console_sink = std::make_shared<spdlog::sinks::stdout_color_sink_mt>();
@@ -59,48 +60,4 @@ std::shared_ptr<spdlog::logger> LoggerManager::getLogger(LogCategory category)
         // 如果日志器不存在，返回默认日志器
         return spdlog::default_logger();
     }
-}
-
-// 创建日志文件夹
-void LoggerManager::Create_log_directory(rpc_server::ServerType server_type)
-{
-    std::string server_name = "default"; // 默认日志文件夹名
-
-    switch(server_type) // 根据服务器类型设置日志文件夹名
-    {
-    case rpc_server::CENTRAL:
-    {
-        server_name = "central_server";
-        break;
-    }
-    case rpc_server::DATA:
-    {
-        server_name = "data_server";
-        break;
-    }
-    case rpc_server::GATEWAY:
-    {
-        server_name = "gateway_server";
-        break;
-    }
-    case rpc_server::LOGIN:
-    {
-        server_name = "login_server";
-        break;
-    }
-    case rpc_server::LOGIC:
-    {
-        server_name = "logic_server";
-        break;
-    }
-    default:
-    {
-        server_name = "default";
-        break;
-    }
-    }
-
-    // 创建日志文件夹
-    this->log_directory = "../../logs/" + server_name;
-    std::filesystem::create_directories(this->log_directory);
 }

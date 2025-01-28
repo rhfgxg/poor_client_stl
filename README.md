@@ -76,7 +76,8 @@ vpckg_installed/：第三方库文件安装目录
 注意，这些文件请不要提交到 git 仓库中，只用来作为个人环境适配           
 1. config/server_config.lua    # 服务器配置文件，可以根据需要修改地址和端口（代码中读取此文件进行初始化）
 2. tools/debug/protoc_make.cmd      # 生成 proto 文件的脚本，根据自己的项目目录修改 PROTOC 和 GRPC_PLUGIN变量，在9，10行
-
+3. 所有的 CMake 文件，常量部分：vcpkg工具链路径：指向 vcpkg安装目录下的 vcpkg.cmake 文件
+    vcpkg管理的第三方库路径
 
 ## 编译与部署
 ### 编译

@@ -1,35 +1,52 @@
 #include "file_plugin.h"
 #include "logger_manager.h"
 
-FilePlugin::FilePlugin() {
-    // 初始化文件服务器
-    LoggerManager logger_manager;
-    file_server = new FileServerImpl(logger_manager);
+FilePlugin::FilePlugin()
+{
+    LoggerManager logger_manager;   // 日志管理器
+    file_server = new FileServerImpl(logger_manager);   // 创建文件服务器
 }
 
-FilePlugin::~FilePlugin() {
+FilePlugin::~FilePlugin()
+{
     delete file_server;
 }
 
-void FilePlugin::Initialize() {
+// 创建插件实例
+void FilePlugin::Initialize()
+{
     // 初始化文件服务器
     file_server->start_thread_pool(4); // 启动线程池
 }
 
-void FilePlugin::Execute() {
+// 执行插件服务
+void FilePlugin::Execute()
+{
     // 执行文件服务器的功能
     // 例如，处理文件上传、下载等请求
 }
 
-void FilePlugin::Shutdown() {
+// 关闭插件
+void FilePlugin::Shutdown()
+{
     // 关闭文件服务器
     file_server->stop_thread_pool(); // 停止线程池
 }
 
-extern "C" IPlugin* CreatePlugin() {
-    return new FilePlugin();
+// 获取文件服务器对象
+FileServerImpl* FilePlugin::GetFileServer()
+{
+    return file_server; // 返回文件服务器对象
 }
 
-extern "C" void DestroyPlugin(IPlugin* plugin) {
+// 获取插件对象
+extern "C" IPlugin* CreatePlugin()
+{
+    return new FilePlugin();    // 创建插件对象，并返回地址
+}
+
+// 释放插件对象
+extern "C" void DestroyPlugin(IPlugin* plugin)
+{
     delete plugin;
 }

@@ -5,44 +5,43 @@ set(CMAKE_CXX_STANDARD_REQUIRED True)
 
 # 定义常量
 project("file_plugin" VERSION 1.0)
-set(CMAKE_PREFIX_PATH "${CMAKE_SOURCE_DIR}/vcpkg_installed/x64-windows")
-set(VCPKG_INCLUDE "${CMAKE_PREFIX_PATH}/include")
-set(VCPKG_LIB "${CMAKE_PREFIX_PATH}/lib")
-set(VCPKG_BIN "${CMAKE_PREFIX_PATH}/bin")
-set(VCPKG_DEBUG_LIB "${CMAKE_PREFIX_PATH}/debug/lib")
-set(VCPKG_DEBUG_BIN "${CMAKE_PREFIX_PATH}/debug/bin")
+set(MAIN_PROJECT_SOURCE_DIR "../../../")  # 手动定义指向主模块的路径：主模块单独编译，无法使用主模块变量
+set(CMAKE_PREFIX_PATH "${MAIN_PROJECT_SOURCE_DIR}/vcpkg_installed/x64-windows")
+set(VCPKG_INCLUDE "${MAIN_PROJECT_SOURCE_DIR}/include")
+set(VCPKG_LIB "${MAIN_PROJECT_SOURCE_DIR}/lib")
+set(VCPKG_BIN "${MAIN_PROJECT_SOURCE_DIR}/bin")
+set(VCPKG_DEBUG_LIB "${MAIN_PROJECT_SOURCE_DIR}/debug/lib")
+set(VCPKG_DEBUG_BIN "${MAIN_PROJECT_SOURCE_DIR}/debug/bin")
 # 设置 vcpkg 工具链文件路径
 if(NOT DEFINED CMAKE_TOOLCHAIN_FILE)    # 防止环境中定义了此变量
     set(CMAKE_TOOLCHAIN_FILE "D:/opt/tools/cpp/vcpkg/scripts/buildsystems/vcpkg.cmake" CACHE STRING "Vcpkg toolchain file")
 endif()
 
-# 包含头文件的目录，在子模块中生效
+# 包含子模块
+add_subdirectory(protobuf)
+
+# 包含头文件的目录
 include_directories(
     ${VCPKG_INCLUDE}     # 第三方库的头文件所在目录
     # 共享工具类
-    ${CMAKE_SOURCE_DIR}/src/common
+    ${MAIN_PROJECT_SOURCE_DIR}/src/common
     # 插件模块
-    ${CMAKE_SOURCE_DIR}/src/plugins/file
-    ${CMAKE_SOURCE_DIR}/src/plugins/logic
-    ${CMAKE_SOURCE_DIR}/src/plugins/common
+    ${MAIN_PROJECT_SOURCE_DIR}/src/plugins/file
+    ${MAIN_PROJECT_SOURCE_DIR}/src/plugins/logic
+    ${MAIN_PROJECT_SOURCE_DIR}/src/plugins/common
     # proto生成的 grpc服务头文件目录
-    ${CMAKE_SOURCE_DIR}/protobuf/central
-    ${CMAKE_SOURCE_DIR}/protobuf/data
-    ${CMAKE_SOURCE_DIR}/protobuf/file
-    ${CMAKE_SOURCE_DIR}/protobuf/gateway
-    ${CMAKE_SOURCE_DIR}/protobuf/logic
-    ${CMAKE_SOURCE_DIR}/protobuf/login
+    ${CMAKE_BINARY_DIR}
 )
 
 # 需要编译的源文件列表
 set(SOURCES
-    ${PROJECT_SOURCE_DIR}/src/plugin/file/file_server.cpp
-    ${PROJECT_SOURCE_DIR}/src/plugin/file/file_plugin.cpp
+    ${MAIN_PROJECT_SOURCE_DIR}/src/plugins/file/file_server.cpp
+    ${MAIN_PROJECT_SOURCE_DIR}/src/plugins/file/file_plugin.cpp
     # 共享工具类
-    ${PROJECT_SOURCE_DIR}/src/common/logger_manager.cpp
+    ${MAIN_PROJECT_SOURCE_DIR}/src/common/logger_manager.cpp
     # proto生成的源文件
-    ${PROJECT_SOURCE_DIR}/protobuf/file/server_file.pb.cc
-    ${PROJECT_SOURCE_DIR}/protobuf/file/server_file.grpc.pb.cc
+    ${CMAKE_BINARY_DIR}/protobuf/file/server_file.pb.cc
+    ${CMAKE_BINARY_DIR}/protobuf/file/server_file.grpc.pb.cc
 )
 
 # 指定编译生成的可执行文件信息：文件名${MODULE_NAME} ，${SOURCES} 项目所有源文件路径
@@ -80,7 +79,6 @@ target_link_libraries(${PROJECT_NAME} PRIVATE
 #    ZLIB::ZLIB
 #    upb::upb
     gRPC::grpc++
-    lua
     spdlog::spdlog
     ${ADDRESS_SORTING_LIB}  # address_sorting 库：用于gRPC的地址排序
 )

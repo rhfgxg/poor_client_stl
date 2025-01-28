@@ -15,34 +15,36 @@ if(NOT DEFINED CMAKE_TOOLCHAIN_FILE)    # 防止环境中定义了此变量
     set(CMAKE_TOOLCHAIN_FILE "D:/opt/tools/cpp/vcpkg/scripts/buildsystems/vcpkg.cmake" CACHE STRING "Vcpkg toolchain file")
 endif()
 
-# 包含头文件的目录，在子模块中生效
+# 包含子模块
+add_subdirectory(protobuf)
+
+# 头文件的路径列表
 include_directories(
     ${VCPKG_INCLUDE}     # 第三方库的头文件所在目录
     # 共享工具类
     ${CMAKE_SOURCE_DIR}/src/common
     # 主模块及功能实现类
     ${CMAKE_SOURCE_DIR}/src/gateway
-    ${CMAKE_SOURCE_DIR}/src/user
+    ${CMAKE_SOURCE_DIR}/src/login
+    # 插件模块
+    ${CMAKE_SOURCE_DIR}/src/plugins/file
+    ${CMAKE_SOURCE_DIR}/src/plugins/logic
     # proto生成的 grpc服务头文件目录
-    ${CMAKE_SOURCE_DIR}/protobuf/central
-    ${CMAKE_SOURCE_DIR}/protobuf/data
-    ${CMAKE_SOURCE_DIR}/protobuf/file
-    ${CMAKE_SOURCE_DIR}/protobuf/gateway
-    ${CMAKE_SOURCE_DIR}/protobuf/logic
-    ${CMAKE_SOURCE_DIR}/protobuf/login
+    ${CMAKE_BINARY_DIR}
 )
-
 # 需要编译的源文件列表
 set(SOURCES
     src/main.cpp
     # 主模块功能实现类
     ${CMAKE_SOURCE_DIR}/src/gateway/gateway_server.cpp
-    ${CMAKE_SOURCE_DIR}/src/user/login_server.cpp
+    # ${CMAKE_SOURCE_DIR}/src/login/login_server.cpp
     # 公共模块
     ${CMAKE_SOURCE_DIR}/src/common/logger_manager.cpp
     ${CMAKE_SOURCE_DIR}/src/common/plugin_manager.cpp
+    # proto生成的源文件
+    ${PROTO_SRCS}
+    ${GRPC_SRCS}
 )
-
 # 指定编译生成的可执行文件信息：文件名${PROJECT_NAME} ，${SOURCES} 项目所有源文件路径
 add_executable(${PROJECT_NAME} ${SOURCES})
 
@@ -61,6 +63,7 @@ find_package(re2 REQUIRED)
 find_package(spdlog REQUIRED)
 find_package(ZLIB REQUIRED)
 find_package(upb REQUIRED)
+find_package(dlfcn-win32 REQUIRED)
 
 # 下面的库无法使用 find_package 寻找，需要手动指定
 find_library(ADDRESS_SORTING_LIB address_sorting PATHS "${VCPKG_LIB}")  # address_sorting.lib, 用于 grpc
@@ -80,9 +83,10 @@ target_link_libraries(${PROJECT_NAME} PRIVATE
 #    re2::re2
 #    ZLIB::ZLIB
 #    upb::upb
+    dlfcn-win32    # win 动态库操作接口（在 linux ios默认支持）
     gRPC::grpc++
     spdlog::spdlog
-    Threads::Threads
+    Threads::Threads    # 多线程库
     ${ADDRESS_SORTING_LIB}  # address_sorting 库：用于gRPC的地址排序
 )
 

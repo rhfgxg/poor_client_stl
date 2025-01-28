@@ -1,10 +1,8 @@
 #ifndef FILE_SERVER_H
 #define FILE_SERVER_H
 
-#include "server_file.grpc.pb.h"
-#include "server_gateway.grpc.pb.h"
+#include "../../../protobuf/file/server_file.grpc.pb.h"
 #include "logger_manager.h"     // 日志管理器
-#include "plugin_manager.h"     // 插件管理器
 
 #include <grpcpp/grpcpp.h>
 #include <thread>
@@ -13,7 +11,6 @@
 #include <mutex>
 #include <condition_variable>
 #include <future>
-#include <lua.hpp>
 
 // 网关服务器对外接口
 class FileServerImpl final: public rpc_server::FileServer::Service
@@ -33,17 +30,14 @@ public:
     grpc::Status Delete(grpc::ServerContext* context, const rpc_server::DeleteFileReq* req, rpc_server::DeleteFileRes* res);
     // 文件列表服务
     grpc::Status ListFiles(grpc::ServerContext* context, const rpc_server::ListFilesReq* req, rpc_server::ListFilesRes* res);
+
 private:
     // 多线程
     std::future<void> add_async_task(std::function<void()> task); // 添加异步任务
     void Worker_thread();   // 执行线程的任务
 
-    // 定时任务：
-    void Send_heartbeat();  // 发送心跳包
-
 private:
     LoggerManager& logger_manager;  // 日志管理器
-    PluginManager plugin_manager;   // 插件管理器
 
     std::vector<std::thread> thread_pool;   // 线程池
     std::queue<std::function<void()>> task_queue;    // 任务队列

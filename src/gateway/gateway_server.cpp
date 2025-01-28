@@ -3,8 +3,24 @@
 GatewayServerImpl::GatewayServerImpl(LoggerManager& logger_manager_):
     logger_manager(logger_manager_)
 {
-    // 加载插件
-    plugin_manager.LoadPlugin("path/to/file_plugin.dll");
+    // 打开插件
+    plugin_manager.LoadPlugin("./plugins/file_plugin.dll");
+
+    IPlugin* plugin = plugin_manager.GetPlugin(0); // 获取第一个插件
+    if(plugin)
+    {
+        plugin->Initialize();
+        plugin->Execute();
+
+        // 获取实际功能接口
+        FilePlugin* file_plugin = dynamic_cast<FilePlugin*>(plugin);
+        if(file_plugin) {
+            FileServerImpl* file_server = file_plugin->GetFileServer();
+            // 现在可以调用 file_server 的实际功能接口
+            // 例如，调用 file_server 的 Upload 方法
+            // file_server->Upload(...);
+        }
+    }
 
     // 定时向中心服务器发送心跳包
     std::thread(&GatewayServerImpl::Send_heartbeat, this).detach();
@@ -14,8 +30,8 @@ GatewayServerImpl::~GatewayServerImpl()
 {
     stop_thread_pool(); // 停止并清空线程池
 
-    // 卸载插件
-    plugin_manager.UnLoadPlugin("path/to/file_plugin.dll");
+    // 卸载所有插件
+    plugin_manager.UnloadPlugins();
 
     // 记录关闭日志
     logger_manager.getLogger(LogCategory::STARTUP_SHUTDOWN)->info("GatewayServer stopped");

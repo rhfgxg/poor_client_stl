@@ -1,8 +1,6 @@
 #ifndef LOGGER_MANAGER_H
 #define LOGGER_MANAGER_H
 
-#include "server_central.grpc.pb.h" // 使用服务器类型枚举
-
 #include <spdlog/spdlog.h>
 #include <spdlog/sinks/basic_file_sink.h>
 #include <spdlog/sinks/daily_file_sink.h>
@@ -44,7 +42,7 @@ class LoggerManager
 {
 public:
     // 初始化日志器
-    void initialize(rpc_server::ServerType server_type);
+    void initialize();
     // 清理日志器
     void cleanup();
 
@@ -52,8 +50,6 @@ public:
     std::shared_ptr<spdlog::logger> getLogger(LogCategory category);
 
 private:
-    // 创建日志文件夹
-    void Create_log_directory(rpc_server::ServerType server_type);
 
 private:
     std::unordered_map<LogCategory, std::shared_ptr<spdlog::logger>> loggers;   // 日志器容器

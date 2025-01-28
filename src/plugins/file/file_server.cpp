@@ -3,20 +3,14 @@
 FileServerImpl::FileServerImpl(LoggerManager& logger_manager_):
     logger_manager(logger_manager_)
 {
-    // 加载插件
-    plugin_manager.LoadPlugin("path/to/plugin");
-
     // 启动定时任务
-    // 定时向中心服务器发送心跳包
-    std::thread(&FileServerImpl::Send_heartbeat, this).detach();
+    // 记录启动日志
+    logger_manager.getLogger(LogCategory::STARTUP_SHUTDOWN)->info("FileServer started");
 }
 
 FileServerImpl::~FileServerImpl()
 {
     stop_thread_pool(); // 停止并清空线程池
-
-    // 卸载插件
-    plugin_manager.UnLoadPlugin("path/to/plugin");
 
     // 记录关闭日志
     logger_manager.getLogger(LogCategory::STARTUP_SHUTDOWN)->info("FileServer stopped");
@@ -98,32 +92,7 @@ void FileServerImpl::Worker_thread()
 }
 
 /******************************************* 定时任务 *****************************************************/
-// 定时任务：发送心跳包
-void FileServerImpl::Send_heartbeat()
-{
-    while(true)
-    {
-        std::this_thread::sleep_for(std::chrono::seconds(10)); // 每10秒发送一次心跳包
 
-        rpc_server::HeartbeatReq request;
-        rpc_server::HeartbeatRes response;
-        grpc::ClientContext context;
-
-        request.set_server_type(rpc_server::ServerType::GATEWAY);
-        request.set_address(this->server_address); // 设置服务器ip
-        request.set_port(this->server_port); // 设置服务器端口
-
-        grpc::Status status = central_stub->Heartbeat(&context, request, &response);
-
-        if(status.ok() && response.success())
-        {
-            logger_manager.getLogger(LogCategory::HEARTBEAT)->info("Heartbeat sent successfully.");
-        } else
-        {
-            logger_manager.getLogger(LogCategory::HEARTBEAT)->error("Failed to send heartbeat.");
-        }
-    }
-}
 
 /**************************************** grpc服务接口定义 **************************************************************************/
 // 服务转发接口

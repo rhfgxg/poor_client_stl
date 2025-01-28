@@ -1,6 +1,7 @@
 syntax = "proto3";
 package rpc_server;
 
+// 逻辑服务器
 service LogicServer
 {
     rpc Process_gameAction (GameActionReq) returns (GameActionRes); // 处理游戏操作

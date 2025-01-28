@@ -1,6 +1,7 @@
 syntax = "proto3";
 package rpc_server;
 
+// 登录服务器
 service LoginServer
 {
     rpc Login (LoginReq) returns (LoginRes);   // 登录服务

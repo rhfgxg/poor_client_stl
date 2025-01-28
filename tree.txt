@@ -53,8 +53,9 @@
 ├─tools		工具
 │  └─script	    脚本
 │        └─debug
-│             └─protoc_make.cmd			生成所有 proto 文件与 gRPC服务
-│ 
+│             ├─protoc_make.cmd			生成所有 proto 文件与 gRPC服务
+│             └─cp_plugins.cmd          复制插件到 主模块执行文件目录
+│
 ├─vcpkg_installed   vcpkg 第三方库安装目录
 │  ├─vcpkg
 │  └─x64-windows

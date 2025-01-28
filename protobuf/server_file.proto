@@ -1,6 +1,7 @@
 syntax = "proto3";
 package rpc_server;
 
+// 文件服务
 service FileServer
 {
     rpc Upload (UploadReq) returns (UploadRes);   // 文件上传服务
