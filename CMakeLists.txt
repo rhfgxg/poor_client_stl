@@ -38,6 +38,7 @@ set(SOURCES
     # 公共模块
     ${CMAKE_SOURCE_DIR}/src/common/logger_manager.cpp
     ${CMAKE_SOURCE_DIR}/src/common/plugin_manager.cpp
+    ${CMAKE_SOURCE_DIR}/src/common/connection_pool.cpp
     # proto生成的源文件
     ${CMAKE_SOURCE_DIR}/protobuf/src/common.grpc.pb.cc
     ${CMAKE_SOURCE_DIR}/protobuf/src/common.pb.cc
@@ -68,6 +69,7 @@ find_package(dlfcn-win32 REQUIRED)
 
 # 下面的库无法使用 find_package 寻找，需要手动指定
 find_library(ADDRESS_SORTING_LIB address_sorting PATHS "${VCPKG_LIB}")  # address_sorting.lib, 用于 grpc
+find_library(DL_LIB dl PATHS "${VCPKG_LIB}")  # dl.lib, 用于 dlfcn-win32
 # 下面文件需要直接在子模块中使用路径引入
 
 # 链接第三方库lib
@@ -84,22 +86,23 @@ target_link_libraries(${PROJECT_NAME} PRIVATE
 #    re2::re2
 #    upb::upb
 #    ZLIB::ZLIB
-    dlfcn-win32    # win 动态库操作接口（在 linux ios默认支持）
     gRPC::grpc++
     spdlog::spdlog
     Threads::Threads    # 多线程库
     ${ADDRESS_SORTING_LIB}  # address_sorting 库：用于gRPC的地址排序
+    ${DL_LIB}  # dl 库：用于dlfcn-win32
 )
 
 # 第三方库 dll列表
 set(DLL_FILES
-    "${VCPKG_DEBUG_BIN}/boost_system-vc143-mt-gd-x64-1_85.dll"
+    "${VCPKG_DEBUG_BIN}/boost_system-vc143-mt-gd-x64-1_86.dll"
+    "${VCPKG_DEBUG_BIN}/dl.dll"
     "${VCPKG_DEBUG_BIN}/libprotobufd.dll"
     "${VCPKG_DEBUG_BIN}/libprotocd.dll"
     "${VCPKG_DEBUG_BIN}/libssl-3-x64.dll"
     "${VCPKG_DEBUG_BIN}/libcrypto-3-x64.dll"
     "${VCPKG_DEBUG_BIN}/abseil_dll.dll"
-    "${VCPKG_DEBUG_BIN}/zlibd1.dll"
+    "${VCPKG_BIN}/zlib1.dll"
     "${VCPKG_DEBUG_BIN}/re2.dll"
     "${VCPKG_DEBUG_BIN}/cares.dll"
     "${VCPKG_DEBUG_BIN}/fmtd.dll"

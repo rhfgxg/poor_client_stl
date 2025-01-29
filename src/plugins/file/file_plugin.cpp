@@ -34,19 +34,24 @@ void FilePlugin::Shutdown()
 }
 
 // 获取文件服务器对象
-FileServerImpl* FilePlugin::GetFileServer()
+FileServerImpl* FilePlugin::Get_file_server()
 {
     return file_server; // 返回文件服务器对象
 }
 
-// 获取插件对象
-extern "C" IPlugin* CreatePlugin()
+extern "C"  // 按照c语言的方式来处理这两个函数的名称：不进行名称修饰
 {
-    return new FilePlugin();    // 创建插件对象，并返回地址
-}
+#ifdef WIN32
+    // 获取插件对象
+    __declspec(dllexport) IPlugin* CreatePlugin()
+    {
+        return new FilePlugin();    // 创建插件对象，并返回地址
+    }
 
-// 释放插件对象
-extern "C" void DestroyPlugin(IPlugin* plugin)
-{
-    delete plugin;
+    // 释放插件对象
+    __declspec(dllexport) void DestroyPlugin(IPlugin* plugin)
+    {
+        delete plugin;
+    }
+#endif // WIN32
 }

@@ -3,9 +3,10 @@
 
 #include "common.grpc.pb.h" // 公共文件：包含服务类型等
 #include "server_gateway.grpc.pb.h" // 网关服务器
+#include  "file_plugin.h"   // 插件接口：文件模块
+#include "connection_pool.h"    // 连接池（网关服务器）
 #include "logger_manager.h"     // 日志管理器
 #include "plugin_manager.h"     // 插件管理器
-#include "file_plugin.h"        // 文件服务器
 
 #include <grpcpp/grpcpp.h>
 #include <thread>
@@ -29,16 +30,14 @@ public:
     grpc::Status Request_forward(grpc::ServerContext* context, const rpc_server::ForwardReq* req, rpc_server::ForwardRes* res);
     // 获取文件服务器地址
     grpc::Status Get_file_server_address(grpc::ServerContext* context, const rpc_server::GetFileServerAddressReq* req, rpc_server::GetFileServerAddressRes* res);
-    // 接收客户端心跳
-    grpc::Status Client_heartbeat(grpc::ServerContext* context, const rpc_server::ClientHeartbeatReq* req, rpc_server::ClientHeartbeatRes* res);
 
 private:
     // 多线程
     std::future<void> add_async_task(std::function<void()> task); // 添加异步任务
     void Worker_thread();   // 执行线程的任务
 
-    // 处理转发请求
-    grpc::Status Forward_to_login_service(const std::string& payload, rpc_server::ForwardRes* response);
+    // 处理转发请求：将所有服务统一转发到服务器
+    grpc::Status Forward_request_service(const rpc_server::ForwardReq* req, rpc_server::ForwardRes* res);
 
     // 定时任务：
     void Send_heartbeat();  // 发送心跳包
@@ -47,7 +46,7 @@ private:
     LoggerManager& logger_manager;  // 日志管理器
     PluginManager plugin_manager;   // 插件管理器
 
-    // 网关服务器连接池
+    ConnectionPool gateway_connection_pool;   // 网关服务器连接池
     
     std::vector<std::thread> thread_pool;   // 线程池
     std::queue<std::function<void()>> task_queue;    // 任务队列

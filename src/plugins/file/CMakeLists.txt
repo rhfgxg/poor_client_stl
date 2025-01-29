@@ -17,8 +17,6 @@ if(NOT DEFINED CMAKE_TOOLCHAIN_FILE)    # 防止环境中定义了此变量
     set(CMAKE_TOOLCHAIN_FILE "D:/opt/tools/cpp/vcpkg/scripts/buildsystems/vcpkg.cmake" CACHE STRING "Vcpkg toolchain file")
 endif()
 
-# 包含子模块
-add_subdirectory(protobuf)
 
 # 包含头文件的目录
 include_directories(
@@ -30,7 +28,7 @@ include_directories(
     ${MAIN_PROJECT_SOURCE_DIR}/src/plugins/logic
     ${MAIN_PROJECT_SOURCE_DIR}/src/plugins/common
     # proto生成的 grpc服务头文件目录
-    ${CMAKE_BINARY_DIR}
+    ${MAIN_PROJECT_SOURCE_DIR}/protobuf/src
 )
 
 # 需要编译的源文件列表
@@ -40,10 +38,9 @@ set(SOURCES
     # 共享工具类
     ${MAIN_PROJECT_SOURCE_DIR}/src/common/logger_manager.cpp
     # proto生成的源文件
-    ${CMAKE_BINARY_DIR}/protobuf/file/server_file.pb.cc
-    ${CMAKE_BINARY_DIR}/protobuf/file/server_file.grpc.pb.cc
+    ${MAIN_PROJECT_SOURCE_DIR}/protobuf/src/server_file.pb.cc
+    ${MAIN_PROJECT_SOURCE_DIR}/protobuf/src/server_file.grpc.pb.cc
 )
-
 # 指定编译生成的可执行文件信息：文件名${MODULE_NAME} ，${SOURCES} 项目所有源文件路径
 add_library(${PROJECT_NAME} SHARED ${SOURCES})
 
@@ -85,7 +82,7 @@ target_link_libraries(${PROJECT_NAME} PRIVATE
 
 # 第三方库 dll列表
 set(DLL_FILES
-    "${VCPKG_DEBUG_BIN}/boost_system-vc143-mt-gd-x64-1_85.dll"
+    "${VCPKG_DEBUG_BIN}/boost_system-vc143-mt-gd-x64-1_86.dll"
     "${VCPKG_DEBUG_BIN}/libprotobufd.dll"
     "${VCPKG_DEBUG_BIN}/libprotocd.dll"
     "${VCPKG_DEBUG_BIN}/libssl-3-x64.dll"

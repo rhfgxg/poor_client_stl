@@ -1,7 +1,8 @@
 #include "gateway_server.h"
 
 GatewayServerImpl::GatewayServerImpl(LoggerManager& logger_manager_):
-    logger_manager(logger_manager_)
+    logger_manager(logger_manager_),
+    gateway_connection_pool(10) // 设置网关服务器连接池大小为10
 {
     // 打开插件
     plugin_manager.LoadPlugin("./plugins/file_plugin.dll");
@@ -15,14 +16,16 @@ GatewayServerImpl::GatewayServerImpl(LoggerManager& logger_manager_):
         // 获取实际功能接口
         FilePlugin* file_plugin = dynamic_cast<FilePlugin*>(plugin);
         if(file_plugin) {
-            FileServerImpl* file_server = file_plugin->GetFileServer();
+            //FileServerImpl* file_server = file_plugin->Get_file_server();
             // 现在可以调用 file_server 的实际功能接口
             // 例如，调用 file_server 的 Upload 方法
             // file_server->Upload(...);
         }
     }
 
-    // 定时向中心服务器发送心跳包
+    // 定时向服务器获取最新的连接池状态
+    //std::thread(&GatewayServerImpl::Update_connection_pool, this).detach();
+    // 定时向服务器发送心跳包
     std::thread(&GatewayServerImpl::Send_heartbeat, this).detach();
 }
 
@@ -120,17 +123,21 @@ void GatewayServerImpl::Send_heartbeat()
     {
         std::this_thread::sleep_for(std::chrono::seconds(10)); // 每10秒发送一次心跳包
 
-        rpc_server::HeartbeatReq request;
-        rpc_server::HeartbeatRes response;
+        rpc_server::ClientHeartbeatReq req;
+        rpc_server::ClientHeartbeatRes res;
         grpc::ClientContext context;
 
-        request.set_server_type(rpc_server::ServerType::GATEWAY);
-        request.set_address("127.0.0.1"); // 设置服务器ip
-        request.set_port("50051"); // 设置服务器端口
+        req.set_account("13411806653");  // 设置账户
+        req.set_token(""); // 设置token
+        req.set_address("127.0.0.1"); // 设置服务器ip
 
-        grpc::Status status = central_stub->Heartbeat(&context,request,&response);
+        // 获取连接池中的连接
+        auto channel = this->gateway_connection_pool.get_connection();
+        auto gateway_stub = rpc_server::GatewayServer::NewStub(channel);
 
-        if(status.ok() && response.success())
+        grpc::Status status = gateway_stub->Client_heartbeat(&context, req, &res);
+
+        if(status.ok() && res.success())
         {
             logger_manager.getLogger(LogCategory::HEARTBEAT)->info("Heartbeat sent successfully.");
         }
@@ -145,20 +152,8 @@ void GatewayServerImpl::Send_heartbeat()
 // 服务转发接口
 grpc::Status GatewayServerImpl::Request_forward(grpc::ServerContext* context, const rpc_server::ForwardReq* req, rpc_server::ForwardRes* res)
 {
-    auto task_future = this->add_async_task([this,req,res] {
-        switch(req->service_type()) // 根据请求的服务类型进行转发
-        {
-        case rpc_server::ServiceType::REQ_LOGIN: // 用户登录请求
-        {
-            Forward_to_login_service(req->payload(), res);  // 解析负载，并转发到登录服务
-            break;
-        }
-        default:    // 未知服务类型
-        {
-            res->set_success(false);
-            break;
-        }
-        }
+    auto task_future = this->add_async_task([this, req, res] {
+        Forward_request_service(req, res);
     });
 
     // 等待任务完成
@@ -173,52 +168,24 @@ grpc::Status GatewayServerImpl::Get_file_server_address(grpc::ServerContext* con
     return grpc::Status::OK;
 }
 
-// 接收客户端心跳
-grpc::Status GatewayServerImpl::Client_heartbeat(grpc::ServerContext* context, const rpc_server::ClientHeartbeatReq* req, rpc_server::ClientHeartbeatRes* res)
-{
-    return grpc::Status::OK;
-}
-
 /**************************************** grpc服务接口工具函数 **************************************************************************/
-// Login 方法，处理登录请求
-grpc::Status GatewayServerImpl::Forward_to_login_service(const std::string& payload, rpc_server::ForwardRes* response)
+// 处理转发请求：将所有服务统一转发到服务器
+grpc::Status GatewayServerImpl::Forward_request_service(const rpc_server::ForwardReq* req, rpc_server::ForwardRes* res)
 {
-    rpc_server::LoginReq login_req;  // 创建登录请求对象
-    bool req_out = login_req.ParseFromString(payload); // 将负载解析为登录请求对象
-
-    if(!req_out) // 如果解析失败
-    {
-        return grpc::Status(grpc::StatusCode::INVALID_ARGUMENT,"Failed to parse LoginRequest");
-    }
-
-    // 构造响应
-    rpc_server::LoginRes login_response;
+    // 获取连接池中的连接
+    auto channel = this->gateway_connection_pool.get_connection();
+    auto gateway_stub = rpc_server::GatewayServer::NewStub(channel);
     grpc::ClientContext context;
 
-    // 获取连接池中的连接
-    auto channel = this->login_connection_pool.get_connection(rpc_server::ServerType::LOGIN);
-    auto login_stub = rpc_server::LoginServer::NewStub(channel);
+    grpc::Status status = gateway_stub->Request_forward(&context, *req, res);
 
-    grpc::Status status = login_stub->Login(&context, login_req, &login_response);
-
-    if(!status.ok()) // 如果调用失败
+    if(status.ok() && (*res).success())
     {
-        return status;
-    }
-
-    bool response_out = login_response.SerializeToString(response->mutable_response()); // 将登录响应序列化为转发响应
-    if(!response_out) // 如果序列化失败
-    {
-        return grpc::Status(grpc::StatusCode::INTERNAL, "Failed to serialize LoginResponse");
-    }
-
-    if(login_response.success()) // 如果登录成功
-    {
-        response->set_success(true);    // 设置响应对象 response 的 success 字段为 true
+        std::cout << "Register successful" << std::endl;
     }
     else
     {
-        response->set_success(false);
+        std::cout << "Register failed" << std::endl;
     }
 
     return grpc::Status::OK;

@@ -8,7 +8,7 @@ int main() {
 
     // 加载编译后的插件
     // TODO：不同平台的插件文件名不同，后续进行修改
-    plugin_manager.LoadPlugin("path/to/file_plugin.dll");
+    plugin_manager.LoadPlugin("./plugins/file_plugin.dll");
 
     // 执行插件
     plugin_manager.ExecutePlugins();

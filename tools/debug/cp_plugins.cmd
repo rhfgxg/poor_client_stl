@@ -13,7 +13,7 @@ rem 定义插件名列表
 set PLUGINS=file logic
 
 rem 创建目标文件夹
-set TARGET_DIR=%PROJECT_DIR%\%OUT_DEBUG_DIR%\pligins
+set TARGET_DIR=%PROJECT_DIR%\%OUT_DEBUG_DIR%\plugins
 if not exist "%TARGET_DIR%" (
     mkdir "%TARGET_DIR%"
 )

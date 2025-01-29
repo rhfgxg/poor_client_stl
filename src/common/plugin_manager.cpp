@@ -15,18 +15,19 @@ void PluginManager::LoadPlugin(const std::string& path)
 
     // dlsym()函数在动态链接库中查找符号name，并返回符号的地址
     // 参数：句柄，符号名，返回值：符号（函数或变量）的指针
-    auto createPlugin = reinterpret_cast<IPlugin* (*)()>(dlsym(handle, "CreatePlugin"));    
-    auto destroyPlugin = reinterpret_cast<void (*)(IPlugin*)>(dlsym(handle, "DestroyPlugin"));
+    auto create_plugin = reinterpret_cast<IPlugin* (*)()>(dlsym(handle, "CreatePlugin"));    
+    auto destroy_plugin = reinterpret_cast<void (*)(IPlugin*)>(dlsym(handle, "DestroyPlugin"));
 
-    if(!createPlugin || !destroyPlugin) // 如果未找到符号，则返回NULL
+    if(!create_plugin || !destroy_plugin) // 如果未找到符号，则返回NULL
     {
         std::cerr << "Failed to load plugin symbols: " << dlerror() << std::endl;
         dlclose(handle);
         return;
     }
 
-    IPlugin* plugin = createPlugin();   // 创建插件对象
-    plugins_.emplace_back(plugin, destroyPlugin); // 将插件对象添加到插件列表
+    // 创建插件实例并存储在 unique_ptr 中
+    std::unique_ptr<IPlugin> plugin(create_plugin());
+    plugins_.push_back(std::move(plugin));
 }
 
 // 关闭所有插件
