@@ -99,6 +99,84 @@ inline bool ServiceType_Parse(absl::string_view name, ServiceType* value) {
   return ::google::protobuf::internal::ParseNamedEnum<ServiceType>(
       ServiceType_descriptor(), name, value);
 }
+enum LogLevel : int {
+  DEBUG = 0,
+  INFO = 1,
+  WARN = 2,
+  ERROR_LEVEL = 3,
+  CRITICAL = 4,
+  TRACE = 5,
+  LogLevel_INT_MIN_SENTINEL_DO_NOT_USE_ =
+      std::numeric_limits<::int32_t>::min(),
+  LogLevel_INT_MAX_SENTINEL_DO_NOT_USE_ =
+      std::numeric_limits<::int32_t>::max(),
+};
+
+bool LogLevel_IsValid(int value);
+extern const uint32_t LogLevel_internal_data_[];
+constexpr LogLevel LogLevel_MIN = static_cast<LogLevel>(0);
+constexpr LogLevel LogLevel_MAX = static_cast<LogLevel>(5);
+constexpr int LogLevel_ARRAYSIZE = 5 + 1;
+const ::google::protobuf::EnumDescriptor*
+LogLevel_descriptor();
+template <typename T>
+const std::string& LogLevel_Name(T value) {
+  static_assert(std::is_same<T, LogLevel>::value ||
+                    std::is_integral<T>::value,
+                "Incorrect type passed to LogLevel_Name().");
+  return LogLevel_Name(static_cast<LogLevel>(value));
+}
+template <>
+inline const std::string& LogLevel_Name(LogLevel value) {
+  return ::google::protobuf::internal::NameOfDenseEnum<LogLevel_descriptor,
+                                                 0, 5>(
+      static_cast<int>(value));
+}
+inline bool LogLevel_Parse(absl::string_view name, LogLevel* value) {
+  return ::google::protobuf::internal::ParseNamedEnum<LogLevel>(
+      LogLevel_descriptor(), name, value);
+}
+enum LogCategory : int {
+  STARTUP_SHUTDOWN = 0,
+  APPLICATION_ACTIVITY = 1,
+  CONNECTION_POOL = 2,
+  SYSTEM_MONITORING = 3,
+  HEARTBEAT = 4,
+  SECURITY = 5,
+  CONFIGURATION_CHANGES = 6,
+  DATABASE_OPERATIONS = 7,
+  USER_ACTIVITY = 8,
+  NETWORK = 9,
+  LogCategory_INT_MIN_SENTINEL_DO_NOT_USE_ =
+      std::numeric_limits<::int32_t>::min(),
+  LogCategory_INT_MAX_SENTINEL_DO_NOT_USE_ =
+      std::numeric_limits<::int32_t>::max(),
+};
+
+bool LogCategory_IsValid(int value);
+extern const uint32_t LogCategory_internal_data_[];
+constexpr LogCategory LogCategory_MIN = static_cast<LogCategory>(0);
+constexpr LogCategory LogCategory_MAX = static_cast<LogCategory>(9);
+constexpr int LogCategory_ARRAYSIZE = 9 + 1;
+const ::google::protobuf::EnumDescriptor*
+LogCategory_descriptor();
+template <typename T>
+const std::string& LogCategory_Name(T value) {
+  static_assert(std::is_same<T, LogCategory>::value ||
+                    std::is_integral<T>::value,
+                "Incorrect type passed to LogCategory_Name().");
+  return LogCategory_Name(static_cast<LogCategory>(value));
+}
+template <>
+inline const std::string& LogCategory_Name(LogCategory value) {
+  return ::google::protobuf::internal::NameOfDenseEnum<LogCategory_descriptor,
+                                                 0, 9>(
+      static_cast<int>(value));
+}
+inline bool LogCategory_Parse(absl::string_view name, LogCategory* value) {
+  return ::google::protobuf::internal::ParseNamedEnum<LogCategory>(
+      LogCategory_descriptor(), name, value);
+}
 
 // ===================================================================
 
@@ -132,6 +210,18 @@ struct is_proto_enum<::rpc_server::ServiceType> : std::true_type {};
 template <>
 inline const EnumDescriptor* GetEnumDescriptor<::rpc_server::ServiceType>() {
   return ::rpc_server::ServiceType_descriptor();
+}
+template <>
+struct is_proto_enum<::rpc_server::LogLevel> : std::true_type {};
+template <>
+inline const EnumDescriptor* GetEnumDescriptor<::rpc_server::LogLevel>() {
+  return ::rpc_server::LogLevel_descriptor();
+}
+template <>
+struct is_proto_enum<::rpc_server::LogCategory> : std::true_type {};
+template <>
+inline const EnumDescriptor* GetEnumDescriptor<::rpc_server::LogCategory>() {
+  return ::rpc_server::LogCategory_descriptor();
 }
 
 }  // namespace protobuf

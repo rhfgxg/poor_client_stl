@@ -22,7 +22,7 @@ include_directories(
     ${CMAKE_SOURCE_DIR}/src/common
     # 主模块及功能实现类
     ${CMAKE_SOURCE_DIR}/src/gateway
-    ${CMAKE_SOURCE_DIR}/src/login
+    ${CMAKE_SOURCE_DIR}/src/user
     # 插件模块
     ${CMAKE_SOURCE_DIR}/src/plugins/file
     ${CMAKE_SOURCE_DIR}/src/plugins/logic
@@ -33,8 +33,8 @@ include_directories(
 set(SOURCES
     src/main.cpp
     # 主模块功能实现类
-    ${CMAKE_SOURCE_DIR}/src/gateway/gateway_server.cpp
-    # ${CMAKE_SOURCE_DIR}/src/login/login_server.cpp
+    ${CMAKE_SOURCE_DIR}/src/gateway/gateway_manager.cpp
+    ${CMAKE_SOURCE_DIR}/src/user/user_manager.cpp
     # 公共模块
     ${CMAKE_SOURCE_DIR}/src/common/logger_manager.cpp
     ${CMAKE_SOURCE_DIR}/src/common/plugin_manager.cpp

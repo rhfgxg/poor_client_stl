@@ -58,6 +58,18 @@ void ConnectionPool::update_connections(const std::string& server_address, const
     }
 }
 
+// 添加链接
+void ConnectionPool::add_connection(const std::string& server_address, const std::string& server_port)
+{
+    std::lock_guard<std::mutex> lock(this->pool_mutex);   // 加锁
+    this->server_info = {server_address, server_port};    // 更新服务器信息
+    for(size_t i = 0; i < pool_size; ++i)
+    {
+        auto channel = New_connection(server_address, server_port);
+        this->connection_pool.push(channel);
+    }
+}
+
 // 创建新的连接
 std::shared_ptr<grpc::Channel> ConnectionPool::New_connection(const std::string& server_address, const std::string& server_port)
 {

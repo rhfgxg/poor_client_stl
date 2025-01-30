@@ -1,12 +1,11 @@
-#ifndef GATEWAY_SERVER_H
-#define GATEWAY_SERVER_H
+#ifndef GATEWAY_MANAGER_H
+#define GATEWAY_MANAGER_H
 
 #include "common.grpc.pb.h" // 公共文件：包含服务类型等
 #include "server_gateway.grpc.pb.h" // 网关服务器
-#include  "file_plugin.h"   // 插件接口：文件模块
 #include "connection_pool.h"    // 连接池（网关服务器）
 #include "logger_manager.h"     // 日志管理器
-#include "plugin_manager.h"     // 插件管理器
+
 
 #include <grpcpp/grpcpp.h>
 #include <thread>
@@ -17,17 +16,17 @@
 #include <future>
 
 // 网络模块：负责与服务器通信，心跳等
-class GatewayServerImpl final: public rpc_server::GatewayServer::Service
+class GatewayManager
 {
 public:
-    GatewayServerImpl(LoggerManager& logger_manager_);
-    ~GatewayServerImpl();
+    GatewayManager();
+    ~GatewayManager();
 
     void start_thread_pool(int num_threads);    // 启动线程池
     void stop_thread_pool();    // 停止线程池
 
     // 转发服务请求
-    grpc::Status Request_forward(grpc::ServerContext* context, const rpc_server::ForwardReq* req, rpc_server::ForwardRes* res);
+    grpc::Status Request_forward(const google::protobuf::Message* req, google::protobuf::Message* res, rpc_server::ServiceType service_type);
     // 获取文件服务器地址
     grpc::Status Get_file_server_address(grpc::ServerContext* context, const rpc_server::GetFileServerAddressReq* req, rpc_server::GetFileServerAddressRes* res);
 
@@ -36,15 +35,11 @@ private:
     std::future<void> add_async_task(std::function<void()> task); // 添加异步任务
     void Worker_thread();   // 执行线程的任务
 
-    // 处理转发请求：将所有服务统一转发到服务器
-    grpc::Status Forward_request_service(const rpc_server::ForwardReq* req, rpc_server::ForwardRes* res);
-
     // 定时任务：
     void Send_heartbeat();  // 发送心跳包
 
 private:
-    LoggerManager& logger_manager;  // 日志管理器
-    PluginManager plugin_manager;   // 插件管理器
+    LoggerManager logger_manager;  // 日志管理器
 
     ConnectionPool gateway_connection_pool;   // 网关服务器连接池
     
@@ -55,4 +50,4 @@ private:
     bool stop_threads = false;  // 停止线程标志
 };
 
-#endif // GATEWAY_SERVER_H
+#endif // GATEWAY_MANAGER_H

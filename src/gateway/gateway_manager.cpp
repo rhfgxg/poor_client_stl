@@ -1,59 +1,39 @@
-#include "gateway_server.h"
+#include "gateway_manager.h"
 
-GatewayServerImpl::GatewayServerImpl(LoggerManager& logger_manager_):
-    logger_manager(logger_manager_),
+GatewayManager::GatewayManager():
+    logger_manager(),
     gateway_connection_pool(10) // 设置网关服务器连接池大小为10
 {
-    // 打开插件
-    plugin_manager.LoadPlugin("./plugins/file_plugin.dll");
-
-    IPlugin* plugin = plugin_manager.GetPlugin(0); // 获取第一个插件
-    if(plugin)
-    {
-        plugin->Initialize();
-        plugin->Execute();
-
-        // 获取实际功能接口
-        FilePlugin* file_plugin = dynamic_cast<FilePlugin*>(plugin);
-        if(file_plugin) {
-            //FileServerImpl* file_server = file_plugin->Get_file_server();
-            // 现在可以调用 file_server 的实际功能接口
-            // 例如，调用 file_server 的 Upload 方法
-            // file_server->Upload(...);
-        }
-    }
+    gateway_connection_pool.add_connection("127.0.0.1", "50051"); // 添加连接
 
     // 定时向服务器获取最新的连接池状态
     //std::thread(&GatewayServerImpl::Update_connection_pool, this).detach();
     // 定时向服务器发送心跳包
-    std::thread(&GatewayServerImpl::Send_heartbeat, this).detach();
+    std::thread(&GatewayManager::Send_heartbeat, this).detach();
 }
 
-GatewayServerImpl::~GatewayServerImpl()
+GatewayManager::~GatewayManager()
 {
     stop_thread_pool(); // 停止并清空线程池
 
-    // 卸载所有插件
-    plugin_manager.UnloadPlugins();
-
     // 记录关闭日志
-    logger_manager.getLogger(LogCategory::STARTUP_SHUTDOWN)->info("GatewayServer stopped");
+    logger_manager.getLogger(rpc_server::LogCategory::STARTUP_SHUTDOWN)->info("GatewayServer stopped");
     // 停止并清理日志管理器
     logger_manager.cleanup();
 }
 
 /*************************************** 多线程工具函数 *****************************************************************/
 // 启动线程池
-void GatewayServerImpl::start_thread_pool(int num_threads)
+void GatewayManager::start_thread_pool(int num_threads)
 {// 相关注释请参考 /src/central/src/central/central_server.cpp/start_thread_pool()
     for(int i = 0; i < num_threads; ++i)
     {
-        this->thread_pool.emplace_back(&GatewayServerImpl::Worker_thread, this);   // 创建线程
+        this->thread_pool.emplace_back(&GatewayManager::Worker_thread, this);   // 创建线程
     }
 }
 
 // 停止线程池
-void GatewayServerImpl::stop_thread_pool()
+void GatewayManager::stop_thread_pool()
 {// 相关注释请参考 /src/central/src/central/central_server.cpp/stop_thread_pool()
     {
         std::lock_guard<std::mutex> lock(this->queue_mutex);
@@ -76,7 +56,7 @@ void GatewayServerImpl::stop_thread_pool()
 }
 
 // 添加异步任务
-std::future<void> GatewayServerImpl::add_async_task(std::function<void()> task)
+std::future<void> GatewayManager::add_async_task(std::function<void()> task)
 {
     auto task_ptr = std::make_shared<std::packaged_task<void()>>(std::move(task));
     std::future<void> task_future = task_ptr->get_future();
@@ -92,7 +72,7 @@ std::future<void> GatewayServerImpl::add_async_task(std::function<void()> task)
 }
 
 // 线程池工作函数
-void GatewayServerImpl::Worker_thread()
+void GatewayManager::Worker_thread()
 {// 相关注释请参考 /src/central/src/central/central_server.cpp/worker_thread()
     while(true)
     {
@@ -117,7 +97,7 @@ void GatewayServerImpl::Worker_thread()
 
 /******************************************* 定时任务 *****************************************************/
 // 定时任务：发送心跳包
-void GatewayServerImpl::Send_heartbeat()
+void GatewayManager::Send_heartbeat()
 {
     while(true)
     {
@@ -139,56 +119,71 @@ void GatewayServerImpl::Send_heartbeat()
 
         if(status.ok() && res.success())
         {
-            logger_manager.getLogger(LogCategory::HEARTBEAT)->info("Heartbeat sent successfully.");
+            logger_manager.getLogger(rpc_server::LogCategory::HEARTBEAT)->info("Heartbeat sent successfully.");
         }
         else
         {
-            logger_manager.getLogger(LogCategory::HEARTBEAT)->error("Failed to send heartbeat.");
+            logger_manager.getLogger(rpc_server::LogCategory::HEARTBEAT)->error("Failed to send heartbeat.");
         }
+
+        this->gateway_connection_pool.release_connection(channel); // 释放连接
     }
 }
 
 /**************************************** grpc服务接口定义 **************************************************************************/
 // 服务转发接口
-grpc::Status GatewayServerImpl::Request_forward(grpc::ServerContext* context, const rpc_server::ForwardReq* req, rpc_server::ForwardRes* res)
+grpc::Status GatewayManager::Request_forward(const google::protobuf::Message* req, google::protobuf::Message* res, rpc_server::ServiceType service_type)
 {
-    auto task_future = this->add_async_task([this, req, res] {
-        Forward_request_service(req, res);
-    });
+    /*
+    参数：原始请求包，服务类型
+    函数功能：将原始请求包 包装为网关服务器的转发请求，然后发送给网关服务器转发给对应服务器
+    */
 
-    // 等待任务完成
-    task_future.get();
+    // 包装为转发请求
+    rpc_server::ForwardReq forward_req;
+    forward_req.set_service_type(service_type); // 设置服务类型
+    forward_req.set_payload(req->SerializeAsString());  // 序列化 原始请求 为 payload
+
+    // 构造响应
+    rpc_server::ForwardRes forward_res;
+    grpc::ClientContext client_context; // 包含 RPC 调用的元数据和其他信息
+
+    // 获取连接池中的连接
+    auto channel = this->gateway_connection_pool.get_connection();
+    auto gateway_stub = rpc_server::GatewayServer::NewStub(channel);
+
+    // 向网关服务器发送请求
+    grpc::Status status = gateway_stub->Request_forward(&client_context, forward_req, &forward_res);
+
+    if(status.ok() && forward_res.success())
+    {
+        logger_manager.getLogger(rpc_server::LogCategory::HEARTBEAT)->info("Forward sent successfully.");
+
+        // 解析响应包，得到原始请求的响应
+        if(!res->ParseFromString(forward_res.response()))
+        {
+            logger_manager.getLogger(rpc_server::LogCategory::HEARTBEAT)->error("Failed to parse response.");
+            return grpc::Status(grpc::StatusCode::INTERNAL, "Failed to parse response");
+        }
+    }
+    else
+    {
+        logger_manager.getLogger(rpc_server::LogCategory::HEARTBEAT)->error("Failed to send Forward.");
+        return grpc::Status(grpc::StatusCode::INTERNAL, "Failed to send Forward");
+    }
+
+    this->gateway_connection_pool.release_connection(channel); // 释放连接
 
     return grpc::Status::OK;
 }
 
 // 获取文件服务器地址
-grpc::Status GatewayServerImpl::Get_file_server_address(grpc::ServerContext* context, const rpc_server::GetFileServerAddressReq* req, rpc_server::GetFileServerAddressRes* res)
+grpc::Status GatewayManager::Get_file_server_address(grpc::ServerContext* context, const rpc_server::GetFileServerAddressReq* req, rpc_server::GetFileServerAddressRes* res)
 {
     return grpc::Status::OK;
 }
 
 /**************************************** grpc服务接口工具函数 **************************************************************************/
-// 处理转发请求：将所有服务统一转发到服务器
-grpc::Status GatewayServerImpl::Forward_request_service(const rpc_server::ForwardReq* req, rpc_server::ForwardRes* res)
-{
-    // 获取连接池中的连接
-    auto channel = this->gateway_connection_pool.get_connection();
-    auto gateway_stub = rpc_server::GatewayServer::NewStub(channel);
-    grpc::ClientContext context;
 
-    grpc::Status status = gateway_stub->Request_forward(&context, *req, res);
-
-    if(status.ok() && (*res).success())
-    {
-        std::cout << "Register successful" << std::endl;
-    }
-    else
-    {
-        std::cout << "Register failed" << std::endl;
-    }
-
-    return grpc::Status::OK;
-}
 
 /******************************************** 其他工具函数 ***********************************************/

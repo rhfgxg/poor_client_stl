@@ -23,6 +23,8 @@ public:
     // 更新连接池中的连接
     void update_connections(const std::string& server_address, const std::string& server_port);
 
+    void add_connection(const std::string& server_address, const std::string& server_port);
+
 private:
     // 创建新的连接
     std::shared_ptr<grpc::Channel> New_connection(const std::string& server_address, const std::string& server_port);
