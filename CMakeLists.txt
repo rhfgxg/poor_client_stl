@@ -56,6 +56,7 @@ set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /wd4244 /wd4251 /wd4828 /utf-8")   # 忽
 # 自动寻找第三方库 lib列表
 find_package(absl REQUIRED)
 find_package(Boost REQUIRED system)
+find_package(Boost REQUIRED COMPONENTS asio)
 find_package(c-ares REQUIRED)
 find_package(fmt REQUIRED)
 find_package(gRPC REQUIRED)
@@ -86,6 +87,7 @@ target_link_libraries(${PROJECT_NAME} PRIVATE
 #    re2::re2
 #    upb::upb
 #    ZLIB::ZLIB
+    Boost::asio
     gRPC::grpc++
     spdlog::spdlog
     Threads::Threads    # 多线程库

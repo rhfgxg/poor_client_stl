@@ -7,6 +7,8 @@ UserManager::UserManager():
     logger_manager(),
     gateway_manager()
 {
+    logger_manager.getLogger(rpc_server::LogCategory::STARTUP_SHUTDOWN)->info("Login service started"); // 启动日志
+
     // 启动定时任务
 }
 
@@ -98,15 +100,13 @@ void UserManager::Worker_thread()
 // 登录服务
 void UserManager::Handle_login(const std::string account, const std::string password)
 {
-    // 构造注册请求
-    rpc_server::LoginReq login_req;
+    rpc_server::LoginReq login_req;	// 登录请求
+    rpc_server::LoginRes login_res; // 登录响应
     login_req.set_account(account);    // 设置用户账号
     login_req.set_password(password);   // 设置密码
 
-    rpc_server::LoginRes login_res; // 响应
-
-    // 调用网关转发，向服务器发送请求
-    grpc::Status status = gateway_manager.Request_forward(&login_req, &login_res, rpc_server::ServiceType::REQ_AUTHENTICATE);
+    // 通过网关转发，向服务器发送请求
+    grpc::Status status = gateway_manager.Request_forward(&login_req, &login_res, rpc_server::ServiceType::REQ_LOGIN);
 
     if(status.ok() && login_res.success())
     {
@@ -127,7 +127,7 @@ void UserManager::Handle_register(const rpc_server::RegisterReq* req,rpc_server:
 // 令牌验证服务
 void UserManager::Handle_authenticate(const std::string account, const std::string token)
 {
-    // 构造登录请求
+    // 验证请求
     rpc_server::AuthenticateReq authenticate_req;
     authenticate_req.set_account(account);    // 设置用户账号
     authenticate_req.set_token(token);   // 设置token

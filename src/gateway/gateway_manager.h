@@ -6,7 +6,6 @@
 #include "connection_pool.h"    // 连接池（网关服务器）
 #include "logger_manager.h"     // 日志管理器
 
-
 #include <grpcpp/grpcpp.h>
 #include <thread>
 #include <vector>
@@ -29,16 +28,24 @@ public:
     grpc::Status Request_forward(const google::protobuf::Message* req, google::protobuf::Message* res, rpc_server::ServiceType service_type);
     // 获取文件服务器地址
     grpc::Status Get_file_server_address(grpc::ServerContext* context, const rpc_server::GetFileServerAddressReq* req, rpc_server::GetFileServerAddressRes* res);
-
+    
 private:
+    // 初始化
+    void Client_register();    // 客户端注册
+    void Get_gateway_pool();    // 获取网关服务器连接池
+    std::string get_client_ip();    // 获取客户端ip地址
+
     // 多线程
     std::future<void> add_async_task(std::function<void()> task); // 添加异步任务
     void Worker_thread();   // 执行线程的任务
 
     // 定时任务：
     void Send_heartbeat();  // 发送心跳包
+    void Update_connection_pool();  // 更新连接池
 
 private:
+    std::string client_token;   // 客户端token
+
     LoggerManager logger_manager;  // 日志管理器
 
     ConnectionPool gateway_connection_pool;   // 网关服务器连接池
