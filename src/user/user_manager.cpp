@@ -3,13 +3,15 @@
 #include <fstream>
 #include <iostream>
 
-UserManager::UserManager():
+UserManager::UserManager(GatewayManager& gateway_manager_):
     logger_manager(),
-    gateway_manager()
+    gateway_manager(gateway_manager_)
 {
-    logger_manager.getLogger(rpc_server::LogCategory::STARTUP_SHUTDOWN)->info("Login service started"); // 启动日志
+    start_thread_pool(10);  // 启动线程池
 
     // 启动定时任务
+
+    logger_manager.getLogger(rpc_server::LogCategory::STARTUP_SHUTDOWN)->info("Login service started"); // 启动日志
 }
 
 UserManager::~UserManager()
@@ -110,12 +112,12 @@ void UserManager::Handle_login(const std::string account, const std::string pass
 
     if(status.ok() && login_res.success())
     {
-        logger_manager.getLogger(rpc_server::LogCategory::HEARTBEAT)->info("Login success");
+        logger_manager.getLogger(rpc_server::LogCategory::USER_ACTIVITY)->info("Login success");
         this->Save_token(account, login_res.token());    // 保存/更新令牌
     }
     else
     {
-        logger_manager.getLogger(rpc_server::LogCategory::HEARTBEAT)->error("Login failed");
+        logger_manager.getLogger(rpc_server::LogCategory::USER_ACTIVITY)->error("Login failed");
     }
 }
 

@@ -1,6 +1,9 @@
 #include "plugin_manager.h"     // 插件管理器
-#include  "file_plugin.h"   // 文件模块插件
+#include "file_plugin.h"   // 文件模块插件
 #include "user_manager.h"
+#include "gateway_manager.h"
+
+void config();  // 读取客户端配置文件，初始化客户端配置
 
 // 主模块 main函数
 int main()
@@ -8,10 +11,10 @@ int main()
     std::string account = "3056078308";
     std::string password = "159357";
 
-    UserManager user_manager;
-    user_manager.start_thread_pool(10);
+    GatewayManager gateway_manager; // 网关管理器，单例
 
-    user_manager.Handle_login(account, password);
+    UserManager user_manager(gateway_manager);  // 用户管理器
+    user_manager.Handle_login(account, password);   // 登录
 
     return 0;
 }
@@ -19,7 +22,6 @@ int main()
 void test_plugin()
 {
     PluginManager plugin_manager;   // 插件管理器
-
 
     // 打开插件
     plugin_manager.LoadPlugin("./plugins/file_plugin.dll");
@@ -43,4 +45,11 @@ void test_plugin()
 
     // 卸载所有插件
     plugin_manager.UnloadPlugins();
+}
+
+void config()
+{
+    // 读取配置文件
+    // 初始化客户端配置
+
 }

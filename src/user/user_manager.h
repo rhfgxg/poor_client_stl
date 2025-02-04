@@ -20,7 +20,7 @@
 class UserManager
 {
 public:
-    UserManager();
+    UserManager(GatewayManager& gateway_manager_);
     ~UserManager();
 
     void start_thread_pool(int num_threads);    // 启动线程池
@@ -42,7 +42,7 @@ private:
 private:
     LoggerManager logger_manager;  // 日志管理器
 
-    GatewayManager gateway_manager; // 网关管理
+    GatewayManager& gateway_manager; // 网关管理
 
     std::vector<std::thread> thread_pool;   // 线程池
     std::queue<std::function<void()>> task_queue;    // 任务队列

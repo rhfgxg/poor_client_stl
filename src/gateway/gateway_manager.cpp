@@ -12,6 +12,8 @@ GatewayManager::GatewayManager():
     logger_manager(),
     gateway_connection_pool(10) // 设置网关服务器连接池大小为10
 {
+    start_thread_pool(10); // 启动线程池
+
     Client_register(); // 客户端注册
 
 // 定时任务
@@ -177,18 +179,18 @@ grpc::Status GatewayManager::Request_forward(const google::protobuf::Message* re
 
     if(status.ok() && forward_res.success())
     {
-        logger_manager.getLogger(rpc_server::LogCategory::HEARTBEAT)->info("Forward sent successfully.");
+        logger_manager.getLogger(rpc_server::LogCategory::APPLICATION_ACTIVITY)->info("Forward sent successfully.");
 
         // 解析响应包，得到原始请求的响应
         if(!res->ParseFromString(forward_res.response()))
         {
-            logger_manager.getLogger(rpc_server::LogCategory::HEARTBEAT)->error("Failed to parse response.");
+            logger_manager.getLogger(rpc_server::LogCategory::APPLICATION_ACTIVITY)->error("Failed to parse response.");
             return grpc::Status(grpc::StatusCode::INTERNAL, "Failed to parse response");
         }
     }
     else
     {
-        logger_manager.getLogger(rpc_server::LogCategory::HEARTBEAT)->error("Failed to send Forward.");
+        logger_manager.getLogger(rpc_server::LogCategory::APPLICATION_ACTIVITY)->error("Failed to send Forward.");
         return grpc::Status(grpc::StatusCode::INTERNAL, "Failed to send Forward");
     }
 
@@ -204,7 +206,6 @@ grpc::Status GatewayManager::Get_file_server_address(grpc::ServerContext* contex
 }
 
 /**************************************** grpc服务接口工具函数 **************************************************************************/
-
 
 /******************************************** 其他工具函数 ***********************************************/
 // 客户端注册
@@ -343,4 +344,3 @@ std::string GatewayManager::get_client_ip()
 
     
 }
-
