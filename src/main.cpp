@@ -3,18 +3,23 @@
 #include "user_manager.h"
 #include "gateway_manager.h"
 
+#include <fstream>
+#include <iostream>
+
 void config();  // 读取客户端配置文件，初始化客户端配置
 
 // 主模块 main函数
 int main()
 {
+    config();   // 读取客户端配置文件，初始化客户端配置
+
     std::string account = "3056078308";
     std::string password = "159357";
 
-    GatewayManager gateway_manager; // 网关管理器，单例
+    //GatewayManager gateway_manager; // 网关管理器，单例
 
-    UserManager user_manager(gateway_manager);  // 用户管理器
-    user_manager.Handle_login(account, password);   // 登录
+    //UserManager user_manager(gateway_manager);  // 用户管理器
+    //user_manager.Handle_login(account, password);   // 登录
 
     return 0;
 }
@@ -50,5 +55,38 @@ void test_plugin()
 void config()
 {
     // 读取配置文件
+    std::ifstream config_file_in("./config/local.ini"); // 打开配置文件
+    std::string content;    // 配置文件内容
     // 初始化客户端配置
+
+    // 如果配置文件不存在，创建默认配置文件
+    if(config_file_in.is_open())
+    {
+        // 读取配置文件内容
+        std::string line;
+        while(std::getline(config_file_in, line))
+        {
+            content += line;
+        }
+        config_file_in.close();
+    }
+    else
+    {
+        // 创建默认配置文件
+        std::ofstream config_file_out("./config/local.ini");    // 打开配置文件
+        if(config_file_out.is_open())
+        {
+            // 默认配置
+            content = "log_dir=./logs\n";   // 日志目录
+
+            // 写入
+            config_file_out << content;
+            config_file_out.close();
+        }
+        else
+        {
+            std::cout << "Failed to create config file" << std::endl;
+        }
+
+    }
 }

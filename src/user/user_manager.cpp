@@ -194,7 +194,7 @@ void UserManager::Save_token(const std::string& account, const std::string& toke
         content += "token=" + account + ":" + token + ";\n";
     }
 
-    std::ofstream config_file_out("./config/local.ini");
+    std::ofstream config_file_out("./config/local.ini");    // 打开配置文件
     if (config_file_out.is_open())
     {
         config_file_out << content;

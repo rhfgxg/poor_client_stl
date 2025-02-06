@@ -3,7 +3,7 @@
 void LoggerManager::initialize()
 {
     // 创建日志文件夹
-    this->log_directory = "../../logs/";
+    this->log_directory = "./logs/";
     std::filesystem::create_directories(this->log_directory); 
 
     // 创建控制台日志器
