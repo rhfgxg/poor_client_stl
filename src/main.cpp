@@ -3,10 +3,29 @@
 #include "user_manager.h"
 #include "gateway_manager.h"
 
+#include <string>
 #include <fstream>
 #include <iostream>
 
+#include <openssl/sha.h>
+#include <iomanip>
+#include <sstream>
+
 void config();  // 读取客户端配置文件，初始化客户端配置
+// SHA256哈希加密函数（生成64位16禁止数）
+std::string sha256(const std::string& str) {
+    unsigned char hash[SHA256_DIGEST_LENGTH];
+    SHA256_CTX sha256;
+    SHA256_Init(&sha256);
+    SHA256_Update(&sha256, str.c_str(), str.size());
+    SHA256_Final(hash, &sha256);
+
+    std::stringstream ss;
+    for(int i = 0; i < SHA256_DIGEST_LENGTH; ++i) {
+        ss << std::hex << std::setw(2) << std::setfill('0') << (int)hash[i];
+    }
+    return ss.str();
+}
 
 // 主模块 main函数
 int main()
@@ -16,10 +35,12 @@ int main()
     std::string account = "3056078308";
     std::string password = "159357";
 
+    std::string hashed_password = sha256(password); // 生成64位 16进制 哈希密码
+
     //GatewayManager gateway_manager; // 网关管理器，单例
 
     //UserManager user_manager(gateway_manager);  // 用户管理器
-    //user_manager.Handle_login(account, password);   // 登录
+    //user_manager.Handle_login(account, hashed_password);   // 登录
 
     return 0;
 }
