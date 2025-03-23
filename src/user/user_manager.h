@@ -28,7 +28,7 @@ public:
 
     // 将数据序列化为 grpc请求后，发送给服务器
     void Handle_login(const std::string account, const std::string password);    // 登录
-    void Handle_register(const rpc_server::RegisterReq* req, rpc_server::RegisterRes* res);    // 注册
+    void Handle_register(const std::string user_name, const std::string password, const std::string email);    // 注册
     void Handle_authenticate(const std::string account, const std::string token);    // 令牌验证
 
 private:

@@ -102,18 +102,18 @@ void UserManager::Worker_thread()
 // 登录服务
 void UserManager::Handle_login(const std::string account, const std::string password)
 {
-    rpc_server::LoginReq login_req;	// 登录请求
-    rpc_server::LoginRes login_res; // 登录响应
-    login_req.set_account(account);    // 设置用户账号
-    login_req.set_password(password);   // 设置密码
+    rpc_server::LoginReq req;	// 登录请求
+    rpc_server::LoginRes res; // 登录响应
+    req.set_account(account);    // 设置用户账号
+    req.set_password(password);   // 设置密码
 
     // 通过网关转发，向服务器发送请求
-    grpc::Status status = gateway_manager.Request_forward(&login_req, &login_res, rpc_server::ServiceType::REQ_LOGIN);
+    grpc::Status status = gateway_manager.Request_forward(&req, &res, rpc_server::ServiceType::REQ_LOGIN);
 
-    if(status.ok() && login_res.success())
+    if(status.ok() && res.success())
     {
         logger_manager.getLogger(rpc_server::LogCategory::USER_ACTIVITY)->info("Login success");
-        this->Save_token(account, login_res.token());    // 保存/更新令牌
+        this->Save_token(res.account(), res.token());    // 保存/更新令牌
     }
     else
     {
@@ -122,8 +122,24 @@ void UserManager::Handle_login(const std::string account, const std::string pass
 }
 
 // 注册服务
-void UserManager::Handle_register(const rpc_server::RegisterReq* req,rpc_server::RegisterRes* res)    // 注册
+void UserManager::Handle_register(const std::string user_name, const std::string password, const std::string email)    // 注册
 {
+    rpc_server::RegisterReq req;   // 注册请求
+    rpc_server::RegisterRes res;   // 注册响应
+    req.set_user_name(user_name);  // 设置用户账号
+    req.set_password(password); // 设置密码
+    req.set_email(email);   // 设置邮箱
+    // 通过网关转发，向服务器发送请求
+    grpc::Status status = gateway_manager.Request_forward(&req, &res, rpc_server::ServiceType::REQ_REGISTER);
+    if(status.ok() && res.success())
+    {
+        logger_manager.getLogger(rpc_server::LogCategory::USER_ACTIVITY)->info("Register success");
+        this->Save_token(res.account(), res.token());    // 保存/更新令牌
+    }
+    else
+    {
+        logger_manager.getLogger(rpc_server::LogCategory::USER_ACTIVITY)->error("Register failed");
+    }
 }
 
 // 令牌验证服务

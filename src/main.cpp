@@ -32,15 +32,18 @@ int main()
 {
     config();   // 读取客户端配置文件，初始化客户端配置
 
+    std::string user_name = "lhw";
     std::string account = "3056078308";
     std::string password = "159357";
+    std::string email = "3056078308@qq.com";
 
     std::string hashed_password = sha256(password); // 生成64位 16进制 哈希密码
 
-    //GatewayManager gateway_manager; // 网关管理器，单例
+    GatewayManager gateway_manager; // 网关管理器，单例
 
-    //UserManager user_manager(gateway_manager);  // 用户管理器
+    UserManager user_manager(gateway_manager);  // 用户管理器
     //user_manager.Handle_login(account, hashed_password);   // 登录
+    user_manager.Handle_register(user_name, hashed_password, email);    // 注册
 
     return 0;
 }

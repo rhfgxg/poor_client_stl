@@ -1,4 +1,5 @@
 @echo off
+chcp 65001 >nul
 rem 根据 proto文件，生成对应源码
 
 
