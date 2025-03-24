@@ -109,7 +109,6 @@ void UserManager::Handle_login(const std::string account, const std::string pass
 
     // 通过网关转发，向服务器发送请求
     grpc::Status status = gateway_manager.Request_forward(&req, &res, rpc_server::ServiceType::REQ_LOGIN);
-
     if(status.ok() && res.success())
     {
         logger_manager.getLogger(rpc_server::LogCategory::USER_ACTIVITY)->info("Login success");
@@ -118,6 +117,25 @@ void UserManager::Handle_login(const std::string account, const std::string pass
     else
     {
         logger_manager.getLogger(rpc_server::LogCategory::USER_ACTIVITY)->error("Login failed");
+    }
+}
+
+// 登出服务
+void UserManager::Handle_logout(const std::string account, const std::string token)
+{
+    rpc_server::LogoutReq req;  // 登出请求
+    rpc_server::LogoutRes res;  // 登出响应
+    req.set_account(account);    // 设置用户账号
+    req.set_token(token);   // 设置token
+    // 通过网关转发，向服务器发送请求
+    grpc::Status status = gateway_manager.Request_forward(&req, &res, rpc_server::ServiceType::REQ_LOGOUT);
+    if(status.ok() && res.success())
+    {
+        logger_manager.getLogger(rpc_server::LogCategory::USER_ACTIVITY)->info("Logout success");
+    }
+    else
+    {
+        logger_manager.getLogger(rpc_server::LogCategory::USER_ACTIVITY)->error("Logout failed");
     }
 }
 
@@ -166,8 +184,34 @@ void UserManager::Handle_authenticate(const std::string account, const std::stri
 
 }
 
+/********************************************* 对外接口 *******************************************************/
+// 获取token
+std::string UserManager::Get_token(const std::string account) const
+{
+    std::ifstream config_file_in("./config/local.ini"); // 打开配置文件
+    std::string token;  // 令牌
+    if(config_file_in.is_open())
+    {
+        std::string line;
+        while(std::getline(config_file_in, line))  // 逐行读取
+        {
+            if(line.find("token=") == 0)   // 找到 token 字段
+            {
+                size_t pos = line.find(account + ":");    // 查找账号
+                if(pos != std::string::npos)
+                {
+                    size_t end_pos = line.find(";", pos);    // 查找令牌
+                    token = line.substr(pos + account.size() + 1, end_pos - pos - account.size() - 1);    // 获取令牌
+                    break;
+                }
+            }
+        }
+        config_file_in.close();
+    }
+    return token;
+}
 
-/******************************************** 其他工具函数 ***********************************************/
+/******************************************** 内部工具函数 ***********************************************/
 // 保存令牌
 void UserManager::Save_token(const std::string& account, const std::string& token)
 {
