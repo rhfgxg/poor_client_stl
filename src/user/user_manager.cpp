@@ -160,29 +160,29 @@ void UserManager::Handle_register(const std::string user_name, const std::string
     }
 }
 
-// 令牌验证服务
-void UserManager::Handle_authenticate(const std::string account, const std::string token)
-{
-    // 验证请求
-    rpc_server::AuthenticateReq authenticate_req;
-    authenticate_req.set_account(account);    // 设置用户账号
-    authenticate_req.set_token(token);   // 设置token
-
-    rpc_server::AuthenticateRes authenticate_res;   // 响应
-
-    // 调用网关转发，向服务器发送请求
-    grpc::Status status = gateway_manager.Request_forward(&authenticate_req, &authenticate_res, rpc_server::ServiceType::REQ_AUTHENTICATE);
-
-    if(status.ok() && authenticate_res.success())
-    {
-        std::cout << "token validated" << std::endl;
-    }
-    else
-    {
-        std::cout << "token failed" << std::endl;
-    }
-
-}
+//// 令牌验证服务
+//void UserManager::Handle_authenticate(const std::string account, const std::string token)
+//{
+//    // 验证请求
+//    rpc_server::AuthenticateReq authenticate_req;
+//    authenticate_req.set_account(account);    // 设置用户账号
+//    authenticate_req.set_token(token);   // 设置token
+//
+//    rpc_server::AuthenticateRes authenticate_res;   // 响应
+//
+//    // 调用网关转发，向服务器发送请求
+//    grpc::Status status = gateway_manager.Request_forward(&authenticate_req, &authenticate_res, rpc_server::ServiceType::REQ_AUTHENTICATE);
+//
+//    if(status.ok() && authenticate_res.success())
+//    {
+//        std::cout << "token validated" << std::endl;
+//    }
+//    else
+//    {
+//        std::cout << "token failed" << std::endl;
+//    }
+//
+//}
 
 /********************************************* 对外接口 *******************************************************/
 // 获取token

@@ -26,9 +26,7 @@ public:
 
     // 转发服务请求
     grpc::Status Request_forward(const google::protobuf::Message* req, google::protobuf::Message* res, rpc_server::ServiceType service_type);
-    // 获取文件服务器地址
-    grpc::Status Get_file_server_address(grpc::ServerContext* context, const rpc_server::GetFileServerAddressReq* req, rpc_server::GetFileServerAddressRes* res);
-    
+
 private:
     // 初始化
     void Client_register();    // 客户端注册

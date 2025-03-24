@@ -199,12 +199,6 @@ grpc::Status GatewayManager::Request_forward(const google::protobuf::Message* re
     return grpc::Status::OK;
 }
 
-// 获取文件服务器地址
-grpc::Status GatewayManager::Get_file_server_address(grpc::ServerContext* context, const rpc_server::GetFileServerAddressReq* req, rpc_server::GetFileServerAddressRes* res)
-{
-    return grpc::Status::OK;
-}
-
 /**************************************** grpc服务接口工具函数 **************************************************************************/
 
 /******************************************** 其他工具函数 ***********************************************/

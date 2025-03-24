@@ -30,7 +30,7 @@ public:
     void Handle_login(const std::string account, const std::string password);    // 登录
     void Handle_logout(const std::string account, const std::string token);    // 登出
     void Handle_register(const std::string user_name, const std::string password, const std::string email);    // 注册
-    void Handle_authenticate(const std::string account, const std::string token);    // 令牌验证
+    //void Handle_authenticate(const std::string account, const std::string token);    // 令牌验证
 
     // 对外接口
     std::string Get_token(const std::string account) const;    // 获取token

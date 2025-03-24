@@ -41,12 +41,11 @@ int main()
 
     GatewayManager gateway_manager; // 网关管理器，单例
 
-    UserManager user_manager(gateway_manager);  // 用户管理器
-    const std::string token = user_manager.Get_token(account);    // 获取token
-
+    //UserManager user_manager(gateway_manager);  // 用户管理器
+    //const std::string token = user_manager.Get_token(account);    // 获取token
     //user_manager.Handle_register(user_name, hashed_password, email);    // 注册
     //user_manager.Handle_login(account, hashed_password);   // 登录
-    user_manager.Handle_logout(account, token);   // 登出
+    //user_manager.Handle_logout(account, token);   // 登出
 
     return 0;
 }
