@@ -4,6 +4,7 @@
 #include "server_file.grpc.pb.h"	// 登录服务
 #include "common.grpc.pb.h" // 公共文件：包含服务类型等
 #include "gateway_manager.h" // 网关管理
+#include "user_manager.h"   // 用户管理
 #include "logger_manager.h"     // 日志管理器
 
 #include <grpcpp/grpcpp.h>
@@ -20,7 +21,7 @@
 class FileManager
 {
 public:
-    FileManager(GatewayManager& gateway_manager_);
+    FileManager(GatewayManager& gateway_manager_, UserManager& user_manager_);
     ~FileManager();
 
     void start_thread_pool(int num_threads);    // 启动线程池
@@ -44,6 +45,7 @@ private:
     LoggerManager logger_manager;  // 日志管理器
 
     GatewayManager& gateway_manager; // 网关管理
+    UserManager& user_manager;   // 用户管理
 
     std::vector<std::thread> thread_pool;   // 线程池
     std::queue<std::function<void()>> task_queue;    // 任务队列

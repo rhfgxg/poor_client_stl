@@ -2,9 +2,10 @@
 
 #include <fstream>
 
-FileManager::FileManager(GatewayManager& gateway_manager_):
+FileManager::FileManager(GatewayManager& gateway_manager_, UserManager& user_manager_):
     logger_manager(),
-    gateway_manager(gateway_manager_)
+    gateway_manager(gateway_manager_),
+    user_manager(user_manager_)
 {
     start_thread_pool(10);  // 启动线程池
     // 启动定时任务
@@ -155,7 +156,7 @@ grpc::Status FileManager::ListFiles()
     rpc_server::ListFilesRes res;
 
     // 通过网关转发，向服务器发送请求
-    grpc::Status status = gateway_manager.Request_forward(&req, &res, rpc_server::ServiceType::REQ_FILE_LIST);
+    grpc::Status status = gateway_manager.Request_forward(&req, &res, rpc_server::ServiceType::REQ_GET_FILE_LIST);
     if(status.ok() && res.success())
     {
         logger_manager.getLogger(rpc_server::LogCategory::APPLICATION_ACTIVITY)->info("File list success");
