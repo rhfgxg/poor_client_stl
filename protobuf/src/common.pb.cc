@@ -29,29 +29,31 @@ const ::uint32_t TableStruct_common_2eproto::offsets[1] = {};
 static constexpr ::_pbi::MigrationSchema* schemas = nullptr;
 static constexpr ::_pb::Message* const* file_default_instances = nullptr;
 const char descriptor_table_protodef_common_2eproto[] PROTOBUF_SECTION_VARIABLE(protodesc_cold) = {
-    "\n\014common.proto\022\nrpc_server*\275\002\n\013ServiceTy"
+    "\n\014common.proto\022\nrpc_server*\373\002\n\013ServiceTy"
     "pe\022\r\n\tREQ_LOGIN\020\000\022\r\n\tRES_LOGIN\020\001\022\016\n\nREQ_"
     "LOGOUT\020\002\022\016\n\nRES_LOGOUT\020\003\022\020\n\014REQ_REGISTER"
     "\020\004\022\020\n\014RES_REGISTER\020\005\022\021\n\rREQ_HEARTBEAT\020\006\022"
-    "\021\n\rRES_HEARTBEAT\020\007\022\023\n\017REQ_FILE_UPLOAD\020\010\022"
-    "\023\n\017RES_FILE_UPLOAD\020\t\022\025\n\021REQ_FILE_DOWNLOA"
-    "D\020\n\022\025\n\021RES_FILE_DOWNLOAD\020\013\022\023\n\017REQ_FILE_D"
-    "ELETE\020\014\022\023\n\017RES_FILE_DELETE\020\r\022\021\n\rREQ_FILE"
-    "_LIST\020\016\022\021\n\rRES_FILE_LIST\020\017*S\n\010LogLevel\022\t"
-    "\n\005DEBUG\020\000\022\010\n\004INFO\020\001\022\010\n\004WARN\020\002\022\017\n\013ERROR_L"
-    "EVEL\020\003\022\014\n\010CRITICAL\020\004\022\t\n\005TRACE\020\005*\332\001\n\013LogC"
-    "ategory\022\024\n\020STARTUP_SHUTDOWN\020\000\022\030\n\024APPLICA"
-    "TION_ACTIVITY\020\001\022\023\n\017CONNECTION_POOL\020\002\022\025\n\021"
-    "SYSTEM_MONITORING\020\003\022\r\n\tHEARTBEAT\020\004\022\014\n\010SE"
-    "CURITY\020\005\022\031\n\025CONFIGURATION_CHANGES\020\006\022\027\n\023D"
-    "ATABASE_OPERATIONS\020\007\022\021\n\rUSER_ACTIVITY\020\010\022"
-    "\013\n\007NETWORK\020\tb\006proto3"
+    "\021\n\rRES_HEARTBEAT\020\007\022\031\n\025REQ_FILE_UPLOAD_RE"
+    "ADY\020\010\022\031\n\025RES_FILE_UPLOAD_READY\020\t\022\023\n\017REQ_"
+    "FILE_UPLOAD\020\n\022\023\n\017RES_FILE_UPLOAD\020\013\022\025\n\021RE"
+    "Q_FILE_DOWNLOAD\020\014\022\025\n\021RES_FILE_DOWNLOAD\020\r"
+    "\022\023\n\017REQ_FILE_DELETE\020\016\022\023\n\017RES_FILE_DELETE"
+    "\020\017\022\025\n\021REQ_GET_FILE_LIST\020\020\022\025\n\021RES_GET_FIL"
+    "E_LIST\020\021*S\n\010LogLevel\022\t\n\005DEBUG\020\000\022\010\n\004INFO\020"
+    "\001\022\010\n\004WARN\020\002\022\017\n\013ERROR_LEVEL\020\003\022\014\n\010CRITICAL"
+    "\020\004\022\t\n\005TRACE\020\005*\332\001\n\013LogCategory\022\024\n\020STARTUP"
+    "_SHUTDOWN\020\000\022\030\n\024APPLICATION_ACTIVITY\020\001\022\023\n"
+    "\017CONNECTION_POOL\020\002\022\025\n\021SYSTEM_MONITORING\020"
+    "\003\022\r\n\tHEARTBEAT\020\004\022\014\n\010SECURITY\020\005\022\031\n\025CONFIG"
+    "URATION_CHANGES\020\006\022\027\n\023DATABASE_OPERATIONS"
+    "\020\007\022\021\n\rUSER_ACTIVITY\020\010\022\013\n\007NETWORK\020\tb\006prot"
+    "o3"
 };
 static ::absl::once_flag descriptor_table_common_2eproto_once;
 const ::_pbi::DescriptorTable descriptor_table_common_2eproto = {
     false,
     false,
-    660,
+    722,
     descriptor_table_protodef_common_2eproto,
     "common.proto",
     &descriptor_table_common_2eproto_once,
@@ -89,9 +91,9 @@ const ::google::protobuf::EnumDescriptor* ServiceType_descriptor() {
   return file_level_enum_descriptors_common_2eproto[0];
 }
 PROTOBUF_CONSTINIT const uint32_t ServiceType_internal_data_[] = {
-    1048576u, 0u, };
+    1179648u, 0u, };
 bool ServiceType_IsValid(int value) {
-  return 0 <= value && value <= 15;
+  return 0 <= value && value <= 17;
 }
 const ::google::protobuf::EnumDescriptor* LogLevel_descriptor() {
   ::google::protobuf::internal::AssignDescriptors(&descriptor_table_common_2eproto);
