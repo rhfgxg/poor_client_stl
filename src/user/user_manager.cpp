@@ -11,7 +11,7 @@ UserManager::UserManager(GatewayManager& gateway_manager_):
 
     // 启动定时任务
 
-    logger_manager.getLogger(rpc_server::LogCategory::STARTUP_SHUTDOWN)->info("Login service started"); // 启动日志
+    logger_manager.getLogger(rpc_server::LogCategory::STARTUP_SHUTDOWN)->info("Login Service started"); // 启动日志
 }
 
 UserManager::~UserManager()
@@ -19,7 +19,7 @@ UserManager::~UserManager()
     stop_thread_pool(); // 停止并清空线程池
 
     // 记录关闭日志
-    logger_manager.getLogger(rpc_server::LogCategory::STARTUP_SHUTDOWN)->info("LoginServer stopped");
+    logger_manager.getLogger(rpc_server::LogCategory::STARTUP_SHUTDOWN)->info("Login Service stopped");
     // 停止并清理日志管理器
     logger_manager.cleanup();
 }

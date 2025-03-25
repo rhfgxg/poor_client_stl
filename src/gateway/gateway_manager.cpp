@@ -22,7 +22,7 @@ GatewayManager::GatewayManager():
     // 定时向服务器发送心跳包
     std::thread(&GatewayManager::Send_heartbeat, this).detach();
 
-    logger_manager.getLogger(rpc_server::LogCategory::STARTUP_SHUTDOWN)->info("Gateway service started"); // 启动日志
+    logger_manager.getLogger(rpc_server::LogCategory::STARTUP_SHUTDOWN)->info("Gateway Service started"); // 启动日志
 }
 
 GatewayManager::~GatewayManager()
@@ -30,7 +30,7 @@ GatewayManager::~GatewayManager()
     stop_thread_pool(); // 停止并清空线程池
 
     // 记录关闭日志
-    logger_manager.getLogger(rpc_server::LogCategory::STARTUP_SHUTDOWN)->info("GatewayServer stopped");
+    logger_manager.getLogger(rpc_server::LogCategory::STARTUP_SHUTDOWN)->info("Gateway Service stopped");
     // 停止并清理日志管理器
     logger_manager.cleanup();
 }

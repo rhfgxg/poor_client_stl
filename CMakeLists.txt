@@ -23,11 +23,12 @@ include_directories(
     # 主模块及功能实现类
     ${CMAKE_SOURCE_DIR}/src/gateway
     ${CMAKE_SOURCE_DIR}/src/user
+    ${CMAKE_SOURCE_DIR}/src/file
     # 插件模块
-    ${CMAKE_SOURCE_DIR}/src/plugins/file
+    # ${CMAKE_SOURCE_DIR}/src/plugins/file
     ${CMAKE_SOURCE_DIR}/src/plugins/logic
     # proto生成的 grpc服务头文件目录
-     ${CMAKE_SOURCE_DIR}/protobuf/src
+    ${CMAKE_SOURCE_DIR}/protobuf/src
 )
 # 需要编译的源文件列表
 set(SOURCES
@@ -35,6 +36,7 @@ set(SOURCES
     # 主模块功能实现类
     ${CMAKE_SOURCE_DIR}/src/gateway/gateway_manager.cpp
     ${CMAKE_SOURCE_DIR}/src/user/user_manager.cpp
+    ${CMAKE_SOURCE_DIR}/src/file/file_manager.cpp
     # 公共模块
     ${CMAKE_SOURCE_DIR}/src/common/logger_manager.cpp
     ${CMAKE_SOURCE_DIR}/src/common/plugin_manager.cpp
