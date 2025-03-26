@@ -2,7 +2,6 @@
 #define FILE_MANAGER_H
 
 #include "server_file.grpc.pb.h"	// 登录服务
-#include "common.grpc.pb.h" // 公共文件：包含服务类型等
 #include "gateway_manager.h" // 网关管理
 #include "user_manager.h"   // 用户管理
 #include "logger_manager.h"     // 日志管理器
@@ -28,14 +27,13 @@ public:
     void stop_thread_pool();    // 停止线程池
 
     // 文件上传服务
-    grpc::Status Upload();
+    void Upload(std::string file_name_);
     // 文件下载服务
-    grpc::Status Download();
+    void Download();
     // 文件删除服务
-    grpc::Status Delete();
+    void Delete();
     // 获取文件列表服务
-    grpc::Status ListFiles();
-
+    void ListFiles();
 
 private:
     std::future<void> add_async_task(std::function<void()> task); // 添加异步任务

@@ -211,6 +211,14 @@ std::string UserManager::Get_token(const std::string account) const
     return token;
 }
 
+// 获取账号
+std::string UserManager::Get_account() const
+{
+    //std::ifstream config_file_in("./config/local.ini"); // 打开配置文件
+    std::string account = "3056078308";    // 账号
+
+    return account;
+}
 /******************************************** 内部工具函数 ***********************************************/
 // 保存令牌
 void UserManager::Save_token(const std::string& account, const std::string& token)

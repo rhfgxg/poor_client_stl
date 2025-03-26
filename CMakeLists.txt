@@ -18,6 +18,8 @@ endif()
 # 头文件的路径列表
 include_directories(
     ${VCPKG_INCLUDE}     # 第三方库的头文件所在目录
+    # proto生成的 grpc服务头文件目录
+    ${CMAKE_SOURCE_DIR}/protobuf/src
     # 共享工具类
     ${CMAKE_SOURCE_DIR}/src/common
     # 主模块及功能实现类
@@ -25,10 +27,9 @@ include_directories(
     ${CMAKE_SOURCE_DIR}/src/user
     ${CMAKE_SOURCE_DIR}/src/file
     # 插件模块
-    # ${CMAKE_SOURCE_DIR}/src/plugins/file
+    ${CMAKE_SOURCE_DIR}/src/plugins/file
     ${CMAKE_SOURCE_DIR}/src/plugins/logic
-    # proto生成的 grpc服务头文件目录
-    ${CMAKE_SOURCE_DIR}/protobuf/src
+
 )
 # 需要编译的源文件列表
 set(SOURCES
@@ -48,6 +49,8 @@ set(SOURCES
     ${CMAKE_SOURCE_DIR}/protobuf/src/server_gateway.pb.cc
     ${CMAKE_SOURCE_DIR}/protobuf/src/server_login.grpc.pb.cc
     ${CMAKE_SOURCE_DIR}/protobuf/src/server_login.pb.cc
+    ${CMAKE_SOURCE_DIR}/protobuf/src/server_file.grpc.pb.cc
+    ${CMAKE_SOURCE_DIR}/protobuf/src/server_file.pb.cc
 )
 # 指定编译生成的可执行文件信息：文件名${PROJECT_NAME} ，${SOURCES} 项目所有源文件路径
 add_executable(${PROJECT_NAME} ${SOURCES})

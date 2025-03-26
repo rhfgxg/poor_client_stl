@@ -1,6 +1,6 @@
 #include "file_manager.h"
-
-#include <fstream>
+#include "common.grpc.pb.h" // 公共文件：包含服务类型等
+#include <fstream>  // 文件流
 
 FileManager::FileManager(GatewayManager& gateway_manager_, UserManager& user_manager_):
     logger_manager(),
@@ -95,26 +95,47 @@ void FileManager::Worker_thread()
 
 /************************************ gRPC服务接口 ********************************************************/
 // 文件上传服务
-grpc::Status FileManager::Upload()
+void FileManager::Upload(std::string file_name)
 {
-    rpc_server::UploadReq req;
-    rpc_server::UploadRes res;
+    // 准备文件上传（获取文件服务器地址）
+    rpc_server::UploadReadyReq ready_req;
+    rpc_server::UploadReadyRes ready_res;
+
+    std::string account = user_manager.Get_account();
+    std::string token = user_manager.Get_token(account);
+    ready_req.set_account(account);
+    ready_req.set_token(token);
+    ready_req.set_file_name(file_name);
 
     // 通过网关转发，向服务器发送请求
-    grpc::Status status = gateway_manager.Request_forward(&req, &res, rpc_server::ServiceType::REQ_FILE_UPLOAD);
-    if(status.ok() && res.success())
+    grpc::Status status = gateway_manager.Request_forward(&ready_req, &ready_res, rpc_server::ServiceType::REQ_FILE_UPLOAD_READY);
+    std::string file_server_address = "";   // 文件服务器地址
+    std::string file_server_port = "";  // 文件服务器端口
+    if(status.ok() && ready_res.success())
     {
-        logger_manager.getLogger(rpc_server::LogCategory::APPLICATION_ACTIVITY)->info("File upload success");
+        file_server_address = ready_res.file_server_address();
+        file_server_port = ready_res.file_server_port();
+
+        logger_manager.getLogger(rpc_server::LogCategory::APPLICATION_ACTIVITY)->info("File upload ready success");
     }
     else
     {
-        logger_manager.getLogger(rpc_server::LogCategory::APPLICATION_ACTIVITY)->error("File upload failed");
+        logger_manager.getLogger(rpc_server::LogCategory::APPLICATION_ACTIVITY)->error("File upload ready failed");
+        return;
     }
+
+
+    // 文件上传
+    rpc_server::UploadReq upload_req;
+    rpc_server::UploadRes upload_res;
+
+    // 建立文件服务器直连，进行上传
+    
 
 }
 
 // 文件下载服务
-grpc::Status FileManager::Download()
+void FileManager::Download()
 {
     rpc_server::DownloadReq req;
     rpc_server::DownloadRes res;
@@ -132,7 +153,7 @@ grpc::Status FileManager::Download()
 }
 
 // 文件删除服务
-grpc::Status FileManager::Delete()
+void FileManager::Delete()
 {
     rpc_server::DeleteFileReq req;
     rpc_server::DeleteFileRes res;
@@ -150,13 +171,13 @@ grpc::Status FileManager::Delete()
 }
 
 // 获取文件列表服务
-grpc::Status FileManager::ListFiles()
+void FileManager::ListFiles()
 {
     rpc_server::ListFilesReq req;
     rpc_server::ListFilesRes res;
 
     // 通过网关转发，向服务器发送请求
-    grpc::Status status = gateway_manager.Request_forward(&req, &res, rpc_server::ServiceType::REQ_GET_FILE_LIST);
+    grpc::Status status = gateway_manager.Request_forward(&req, &res, rpc_server::ServiceType::REQ_FILE_LIST);
     if(status.ok() && res.success())
     {
         logger_manager.getLogger(rpc_server::LogCategory::APPLICATION_ACTIVITY)->info("File list success");

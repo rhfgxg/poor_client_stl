@@ -34,6 +34,7 @@ public:
 
     // 对外接口
     std::string Get_token(const std::string account) const;    // 获取token
+    std::string Get_account() const;    // 获取账号
 private:
     std::future<void> add_async_task(std::function<void()> task); // 添加异步任务
     void Worker_thread();   // 执行线程的任务

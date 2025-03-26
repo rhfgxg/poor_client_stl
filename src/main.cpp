@@ -1,7 +1,8 @@
 #include "plugin_manager.h"     // 插件管理器
 #include "file_plugin.h"   // 文件模块插件
-#include "user_manager.h"
-#include "gateway_manager.h"
+#include "user_manager.h"   // 用户管理器
+#include "gateway_manager.h"    // 网关管理器
+#include "file_manager.h"   // 文件管理器
 
 #include <string>
 #include <fstream>
@@ -41,11 +42,14 @@ int main()
 
     GatewayManager gateway_manager; // 网关管理器，单例
 
-    //UserManager user_manager(gateway_manager);  // 用户管理器
+    UserManager user_manager(gateway_manager);  // 用户管理器
     //const std::string token = user_manager.Get_token(account);    // 获取token
     //user_manager.Handle_register(user_name, hashed_password, email);    // 注册
     //user_manager.Handle_login(account, hashed_password);   // 登录
     //user_manager.Handle_logout(account, token);   // 登出
+
+    FileManager file_manager(gateway_manager, user_manager);    // 文件管理器
+    file_manager.Upload("test.txt");  // 文件上传服务
 
     return 0;
 }
