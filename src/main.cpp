@@ -49,7 +49,8 @@ int main()
     //user_manager.Handle_logout(account, token);   // 登出
 
     FileManager file_manager(gateway_manager, user_manager);    // 文件管理器
-    file_manager.Upload("test.txt");  // 文件上传服务
+    //file_manager.Upload("test.txt");  // 文件上传服务
+    file_manager.Download("test.txt");  // 文件下载服务
 
     return 0;
 }

@@ -95,54 +95,34 @@ void FileManager::Worker_thread()
 
 /************************************ gRPC服务接口 ********************************************************/
 // 文件上传服务
-void FileManager::Upload(std::string file_name)
+void FileManager::Upload(std::string file_name_)
 {
-    // 准备文件上传（获取文件服务器地址）
-    rpc_server::TransmissionReadyReq ready_req;
-    rpc_server::TransmissionReadyRes ready_res;
-
-    std::string account = user_manager.Get_account();
-    std::string token = user_manager.Get_token(account);
-    ready_req.set_account(account);
-    ready_req.set_token(token);
-    ready_req.set_file_name(file_name);
-
-    // 通过网关转发，向服务器发送请求
-    grpc::Status ready_status = gateway_manager.Request_forward(&ready_req, &ready_res, rpc_server::ServiceType::REQ_FILE_TRANSMISSION_READY);
+    std::string account = user_manager.Get_account();   // 用户账号
+    std::string token = user_manager.Get_token(account);    // 用户token
     std::string file_server_address = "";   // 文件服务器地址
     std::string file_server_port = "";  // 文件服务器端口
-    if(ready_status.ok() && ready_res.success())
-    {
-        file_server_address = ready_res.file_server_address();
-        file_server_port = ready_res.file_server_port();
 
-        logger_manager.getLogger(rpc_server::LogCategory::APPLICATION_ACTIVITY)->info("File transmission ready success");
-    }
-    else
-    {
-        logger_manager.getLogger(rpc_server::LogCategory::APPLICATION_ACTIVITY)->error("File transmission ready failed");
-        return;
-    }
-
+    // 文件传输准备(服务器地址和端口通过引用参数返回)
+    this->File_transmission_ready(file_name_, account, token, file_server_address, file_server_port);
 
     // 文件上传
-    rpc_server::UploadReq upload_req;
-    rpc_server::UploadRes upload_res;
+    rpc_server::UploadReq req;
+    rpc_server::UploadRes res;
     grpc::ClientContext context;
 
     // 初始化请求
-    upload_req.set_account(account);
-    upload_req.file_name();
-    upload_req.file_data();
+    req.set_account(account);
+    req.file_name();
+    req.file_data();
 
     // 建立文件服务器直连，进行上传
     auto channel = grpc::CreateChannel(file_server_address + ":" + file_server_port, grpc::InsecureChannelCredentials());
     auto file_stub = rpc_server::FileServer::NewStub(channel);
 
     // 发送请求
-    grpc::Status upload_status = file_stub->Upload(&context, upload_req, &upload_res);
+    grpc::Status status = file_stub->Upload(&context, req, &res);
 
-    if(upload_status.ok() && upload_res.success())
+    if(status.ok() && res.success())
     {
         logger_manager.getLogger(rpc_server::LogCategory::APPLICATION_ACTIVITY)->info("File upload success");
     }
@@ -153,13 +133,26 @@ void FileManager::Upload(std::string file_name)
 }
 
 // 文件下载服务
-void FileManager::Download()
+void FileManager::Download(std::string file_name_)
 {
+    std::string account = user_manager.Get_account();   // 用户账号
+    std::string token = user_manager.Get_token(account);    // 用户token
+    std::string file_server_address = "";   // 文件服务器地址
+    std::string file_server_port = "";  // 文件服务器端口
+
+    // 文件传输准备(服务器地址和端口通过引用参数返回)
+    this->File_transmission_ready(file_name_, account, token, file_server_address, file_server_port);
+
     rpc_server::DownloadReq req;
     rpc_server::DownloadRes res;
+    grpc::ClientContext context;
 
-    // 通过网关转发，向服务器发送请求
-    grpc::Status status = gateway_manager.Request_forward(&req, &res, rpc_server::ServiceType::REQ_FILE_DOWNLOAD);
+    // 建立文件服务器直连，进行上传
+    auto channel = grpc::CreateChannel(file_server_address + ":" + file_server_port, grpc::InsecureChannelCredentials());
+    auto file_stub = rpc_server::FileServer::NewStub(channel);
+
+    // 发送请求
+    grpc::Status status = file_stub->Download(&context, req, &res);
     if(status.ok() && res.success())
     {
         logger_manager.getLogger(rpc_server::LogCategory::APPLICATION_ACTIVITY)->info("File download success");
@@ -171,7 +164,7 @@ void FileManager::Download()
 }
 
 // 文件删除服务
-void FileManager::Delete()
+void FileManager::Delete(std::string file_name_)
 {
     rpc_server::DeleteFileReq req;
     rpc_server::DeleteFileRes res;
@@ -209,5 +202,31 @@ void FileManager::ListFiles()
 
 /************************************ 定时任务 ********************************************************/
 
-/************************************ gRPC服务接口工具函数 **************************************************/
+/************************************ 工具函数 **************************************************/
+// 文件传输准备
+void FileManager::File_transmission_ready(const std::string file_name_, const std::string account_, const std::string token_, std::string &file_server_address_, std::string &file_server_port_)
+{
+    // 文件传输准备（获取文件服务器地址）
+    rpc_server::TransmissionReadyReq ready_req;
+    rpc_server::TransmissionReadyRes ready_res;
+
+    ready_req.set_account(account_);
+    ready_req.set_token(token_);
+    ready_req.set_file_name(file_name_);
+
+    // 通过网关转发，向服务器发送请求
+    grpc::Status ready_status = gateway_manager.Request_forward(&ready_req, &ready_res, rpc_server::ServiceType::REQ_FILE_TRANSMISSION_READY);
+    if(ready_status.ok() && ready_res.success())
+    {
+        file_server_address_ = ready_res.file_server_address();
+        file_server_port_ = ready_res.file_server_port();
+
+        logger_manager.getLogger(rpc_server::LogCategory::APPLICATION_ACTIVITY)->info("File transmission ready success");
+    }
+    else
+    {
+        logger_manager.getLogger(rpc_server::LogCategory::APPLICATION_ACTIVITY)->error("File transmission ready failed");
+        return;
+    }
+}
 

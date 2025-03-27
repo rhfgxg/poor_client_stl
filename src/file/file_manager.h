@@ -29,13 +29,15 @@ public:
     // 文件上传服务
     void Upload(std::string file_name_);
     // 文件下载服务
-    void Download();
+    void Download(std::string file_name_);
     // 文件删除服务
-    void Delete();
+    void Delete(std::string file_name_);
     // 获取文件列表服务
     void ListFiles();
 
 private:
+    void FileManager::File_transmission_ready(const std::string file_name_, const std::string account_, const std::string token_, std::string &file_server_address_, std::string &file_server_port_);    // 文件传输准备
+
     std::future<void> add_async_task(std::function<void()> task); // 添加异步任务
     void Worker_thread();   // 执行线程的任务
 
