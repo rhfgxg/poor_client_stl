@@ -163,12 +163,11 @@ grpc::Status GatewayManager::Request_forward(const google::protobuf::Message* re
 
     // 包装为转发请求
     rpc_server::ForwardReq forward_req;
-    forward_req.set_service_type(service_type); // 设置服务类型
-    forward_req.set_payload(req->SerializeAsString());  // 序列化 原始请求 为 payload
-
-    // 构造响应
     rpc_server::ForwardRes forward_res;
     grpc::ClientContext client_context; // 包含 RPC 调用的元数据和其他信息
+
+    forward_req.set_service_type(service_type); // 设置服务类型
+    forward_req.set_payload(req->SerializeAsString());  // 序列化 原始请求 为 payload
 
     // 获取连接池中的连接
     auto channel = this->gateway_connection_pool.get_connection();

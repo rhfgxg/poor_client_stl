@@ -97,7 +97,7 @@ void FileManager::Worker_thread()
 // 文件上传服务
 void FileManager::Upload(std::string file_name)
 {
-    // 准备文件上传（获取文件服务器地址）
+    //// 准备文件上传（获取文件服务器地址）
     rpc_server::UploadReadyReq ready_req;
     rpc_server::UploadReadyRes ready_res;
 
@@ -108,10 +108,10 @@ void FileManager::Upload(std::string file_name)
     ready_req.set_file_name(file_name);
 
     // 通过网关转发，向服务器发送请求
-    grpc::Status status = gateway_manager.Request_forward(&ready_req, &ready_res, rpc_server::ServiceType::REQ_FILE_UPLOAD_READY);
+    grpc::Status ready_status = gateway_manager.Request_forward(&ready_req, &ready_res, rpc_server::ServiceType::REQ_FILE_UPLOAD_READY);
     std::string file_server_address = "";   // 文件服务器地址
     std::string file_server_port = "";  // 文件服务器端口
-    if(status.ok() && ready_res.success())
+    if(ready_status.ok() && ready_res.success())
     {
         file_server_address = ready_res.file_server_address();
         file_server_port = ready_res.file_server_port();
@@ -128,10 +128,28 @@ void FileManager::Upload(std::string file_name)
     // 文件上传
     rpc_server::UploadReq upload_req;
     rpc_server::UploadRes upload_res;
+    grpc::ClientContext context;
+
+    // 初始化请求
+    upload_req.set_account(account);
+    upload_req.file_name();
+    upload_req.file_data();
 
     // 建立文件服务器直连，进行上传
-    
+    auto channel = grpc::CreateChannel(file_server_address + ":" + file_server_port, grpc::InsecureChannelCredentials());
+    auto file_stub = rpc_server::FileServer::NewStub(channel);
 
+    // 发送请求
+    grpc::Status upload_status = file_stub->Upload(&context, upload_req, &upload_res);
+
+    if(upload_status.ok() && upload_res.success())
+    {
+        logger_manager.getLogger(rpc_server::LogCategory::APPLICATION_ACTIVITY)->info("File upload success");
+    }
+    else
+    {
+        logger_manager.getLogger(rpc_server::LogCategory::APPLICATION_ACTIVITY)->error("File upload failed");
+    }
 }
 
 // 文件下载服务
