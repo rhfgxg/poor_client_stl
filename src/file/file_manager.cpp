@@ -147,6 +147,10 @@ void FileManager::Download(std::string file_name_)
     rpc_server::DownloadRes res;
     grpc::ClientContext context;
 
+    // 初始化请求
+    req.set_account(account);
+    req.file_name();
+
     // 建立文件服务器直连，进行上传
     auto channel = grpc::CreateChannel(file_server_address + ":" + file_server_port, grpc::InsecureChannelCredentials());
     auto file_stub = rpc_server::FileServer::NewStub(channel);
@@ -166,8 +170,15 @@ void FileManager::Download(std::string file_name_)
 // 文件删除服务
 void FileManager::Delete(std::string file_name_)
 {
+    std::string account = user_manager.Get_account();   // 用户账号
+    std::string token = user_manager.Get_token(account);    // 用户token
+
     rpc_server::DeleteFileReq req;
     rpc_server::DeleteFileRes res;
+
+    // 初始化请求
+    req.set_account(account);
+    req.file_name();
 
     // 通过网关转发，向服务器发送请求
     grpc::Status status = gateway_manager.Request_forward(&req, &res, rpc_server::ServiceType::REQ_FILE_DELETE);
