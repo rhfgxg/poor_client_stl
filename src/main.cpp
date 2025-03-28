@@ -51,7 +51,8 @@ int main()
     FileManager file_manager(gateway_manager, user_manager);    // 文件管理器
     //file_manager.Upload("test.txt");  // 文件上传服务
     //file_manager.Download("test.txt");  // 文件下载服务
-    file_manager.Delete("test.txt");    // 文件删除服务
+    //file_manager.Delete("test.txt");    // 文件删除服务
+    file_manager.ListFiles();   // 获取文件列表服务
 
     return 0;
 }

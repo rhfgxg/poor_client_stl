@@ -195,8 +195,14 @@ void FileManager::Delete(std::string file_name_)
 // 获取文件列表服务
 void FileManager::ListFiles()
 {
+    std::string account = user_manager.Get_account();   // 用户账号
+    std::string token = user_manager.Get_token(account);    // 用户token
+
     rpc_server::ListFilesReq req;
     rpc_server::ListFilesRes res;
+
+    // 初始化请求
+    req.set_account(account);
 
     // 通过网关转发，向服务器发送请求
     grpc::Status status = gateway_manager.Request_forward(&req, &res, rpc_server::ServiceType::REQ_FILE_LIST);
