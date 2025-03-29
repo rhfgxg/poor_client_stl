@@ -29,31 +29,32 @@ const ::uint32_t TableStruct_common_2eproto::offsets[1] = {};
 static constexpr ::_pbi::MigrationSchema* schemas = nullptr;
 static constexpr ::_pb::Message* const* file_default_instances = nullptr;
 const char descriptor_table_protodef_common_2eproto[] PROTOBUF_SECTION_VARIABLE(protodesc_cold) = {
-    "\n\014common.proto\022\nrpc_server*\377\002\n\013ServiceTy"
-    "pe\022\r\n\tREQ_LOGIN\020\000\022\r\n\tRES_LOGIN\020\001\022\016\n\nREQ_"
-    "LOGOUT\020\002\022\016\n\nRES_LOGOUT\020\003\022\020\n\014REQ_REGISTER"
-    "\020\004\022\020\n\014RES_REGISTER\020\005\022\021\n\rREQ_HEARTBEAT\020\006\022"
-    "\021\n\rRES_HEARTBEAT\020\007\022\037\n\033REQ_FILE_TRANSMISS"
-    "ION_READY\020\010\022\037\n\033RES_FILE_TRANSMISSION_REA"
-    "DY\020\t\022\023\n\017REQ_FILE_UPLOAD\020\n\022\023\n\017RES_FILE_UP"
-    "LOAD\020\013\022\025\n\021REQ_FILE_DOWNLOAD\020\014\022\025\n\021RES_FIL"
-    "E_DOWNLOAD\020\r\022\023\n\017REQ_FILE_DELETE\020\016\022\023\n\017RES"
-    "_FILE_DELETE\020\017\022\021\n\rREQ_FILE_LIST\020\020\022\021\n\rRES"
-    "_FILE_LIST\020\021*S\n\010LogLevel\022\t\n\005DEBUG\020\000\022\010\n\004I"
-    "NFO\020\001\022\010\n\004WARN\020\002\022\017\n\013ERROR_LEVEL\020\003\022\014\n\010CRIT"
-    "ICAL\020\004\022\t\n\005TRACE\020\005*\332\001\n\013LogCategory\022\024\n\020STA"
-    "RTUP_SHUTDOWN\020\000\022\030\n\024APPLICATION_ACTIVITY\020"
-    "\001\022\023\n\017CONNECTION_POOL\020\002\022\025\n\021SYSTEM_MONITOR"
-    "ING\020\003\022\r\n\tHEARTBEAT\020\004\022\014\n\010SECURITY\020\005\022\031\n\025CO"
-    "NFIGURATION_CHANGES\020\006\022\027\n\023DATABASE_OPERAT"
-    "IONS\020\007\022\021\n\rUSER_ACTIVITY\020\010\022\013\n\007NETWORK\020\tb\006"
-    "proto3"
+    "\n\014common.proto\022\nrpc_server*\261\003\n\013ServiceTy"
+    "pe\022\020\n\014REQ_REGISTER\020\000\022\020\n\014RES_REGISTER\020\001\022\r"
+    "\n\tREQ_LOGIN\020\002\022\r\n\tRES_LOGIN\020\003\022\016\n\nREQ_LOGO"
+    "UT\020\004\022\016\n\nRES_LOGOUT\020\005\022\027\n\023REQ_CHANGE_PASSW"
+    "ORD\020\006\022\027\n\023RES_CHANGE_PASSWORD\020\007\022\021\n\rREQ_HE"
+    "ARTBEAT\020\010\022\021\n\rRES_HEARTBEAT\020\t\022\037\n\033REQ_FILE"
+    "_TRANSMISSION_READY\020\n\022\037\n\033RES_FILE_TRANSM"
+    "ISSION_READY\020\013\022\023\n\017REQ_FILE_UPLOAD\020\014\022\023\n\017R"
+    "ES_FILE_UPLOAD\020\r\022\025\n\021REQ_FILE_DOWNLOAD\020\016\022"
+    "\025\n\021RES_FILE_DOWNLOAD\020\017\022\023\n\017REQ_FILE_DELET"
+    "E\020\020\022\023\n\017RES_FILE_DELETE\020\021\022\021\n\rREQ_FILE_LIS"
+    "T\020\022\022\021\n\rRES_FILE_LIST\020\023*S\n\010LogLevel\022\t\n\005DE"
+    "BUG\020\000\022\010\n\004INFO\020\001\022\010\n\004WARN\020\002\022\017\n\013ERROR_LEVEL"
+    "\020\003\022\014\n\010CRITICAL\020\004\022\t\n\005TRACE\020\005*\332\001\n\013LogCateg"
+    "ory\022\024\n\020STARTUP_SHUTDOWN\020\000\022\030\n\024APPLICATION"
+    "_ACTIVITY\020\001\022\023\n\017CONNECTION_POOL\020\002\022\025\n\021SYST"
+    "EM_MONITORING\020\003\022\r\n\tHEARTBEAT\020\004\022\014\n\010SECURI"
+    "TY\020\005\022\031\n\025CONFIGURATION_CHANGES\020\006\022\027\n\023DATAB"
+    "ASE_OPERATIONS\020\007\022\021\n\rUSER_ACTIVITY\020\010\022\013\n\007N"
+    "ETWORK\020\tb\006proto3"
 };
 static ::absl::once_flag descriptor_table_common_2eproto_once;
 const ::_pbi::DescriptorTable descriptor_table_common_2eproto = {
     false,
     false,
-    726,
+    776,
     descriptor_table_protodef_common_2eproto,
     "common.proto",
     &descriptor_table_common_2eproto_once,
@@ -91,9 +92,9 @@ const ::google::protobuf::EnumDescriptor* ServiceType_descriptor() {
   return file_level_enum_descriptors_common_2eproto[0];
 }
 PROTOBUF_CONSTINIT const uint32_t ServiceType_internal_data_[] = {
-    1179648u, 0u, };
+    1310720u, 0u, };
 bool ServiceType_IsValid(int value) {
-  return 0 <= value && value <= 17;
+  return 0 <= value && value <= 19;
 }
 const ::google::protobuf::EnumDescriptor* LogLevel_descriptor() {
   ::google::protobuf::internal::AssignDescriptors(&descriptor_table_common_2eproto);

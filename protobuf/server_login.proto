@@ -6,9 +6,9 @@ service LoginServer
     rpc Login (LoginReq) returns (LoginRes);   // 登录服务
     rpc Logout (LogoutReq) returns (LogoutRes);  // 登出服务
     rpc Register (RegisterReq) returns (RegisterRes);  // 注册服务
-    rpc Authenticate (AuthenticateReq) returns (AuthenticateRes);  // 令牌验证服务
+    rpc Authenticate (AuthenticateReq) returns (AuthenticateRes);  // 令牌验证服务(服务器)
     rpc Change_password (ChangePasswordReq) returns (ChangePasswordRes);  // 修改密码服务
-    rpc Is_user_online (IsUserOnlineReq) returns (IsUserOnlineRes); // 检查用户是否在线
+    rpc Is_user_online (IsUserOnlineReq) returns (IsUserOnlineRes); // 检查用户是否在线(服务器)
 }
 
 // 登录服务请求

@@ -43,16 +43,16 @@ int main()
     GatewayManager gateway_manager; // 网关管理器，单例
 
     UserManager user_manager(gateway_manager);  // 用户管理器
-    //const std::string token = user_manager.Get_token(account);    // 获取token
     //user_manager.Handle_register(user_name, hashed_password, email);    // 注册
     //user_manager.Handle_login(account, hashed_password);   // 登录
-    //user_manager.Handle_logout(account, token);   // 登出
+    //user_manager.Handle_logout(account);   // 登出
+    user_manager.Change_password(hashed_password, sha256("123456"));    // 修改密码
 
-    FileManager file_manager(gateway_manager, user_manager);    // 文件管理器
+    //FileManager file_manager(gateway_manager, user_manager);    // 文件管理器
     //file_manager.Upload("test.txt");  // 文件上传服务
     //file_manager.Download("test.txt");  // 文件下载服务
     //file_manager.Delete("test.txt");    // 文件删除服务
-    file_manager.ListFiles();   // 获取文件列表服务
+    //file_manager.ListFiles();   // 获取文件列表服务
 
     return 0;
 }

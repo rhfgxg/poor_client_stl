@@ -97,7 +97,7 @@ void FileManager::Worker_thread()
 // 文件上传服务
 void FileManager::Upload(std::string file_name_)
 {
-    std::string account = user_manager.Get_account();   // 用户账号
+    std::string account = user_manager.Get_current_account();   // 用户账号
     std::string token = user_manager.Get_token(account);    // 用户token
     std::string file_server_address = "";   // 文件服务器地址
     std::string file_server_port = "";  // 文件服务器端口
@@ -135,7 +135,7 @@ void FileManager::Upload(std::string file_name_)
 // 文件下载服务
 void FileManager::Download(std::string file_name_)
 {
-    std::string account = user_manager.Get_account();   // 用户账号
+    std::string account = user_manager.Get_current_account();   // 用户账号
     std::string token = user_manager.Get_token(account);    // 用户token
     std::string file_server_address = "";   // 文件服务器地址
     std::string file_server_port = "";  // 文件服务器端口
@@ -170,7 +170,7 @@ void FileManager::Download(std::string file_name_)
 // 文件删除服务
 void FileManager::Delete(std::string file_name_)
 {
-    std::string account = user_manager.Get_account();   // 用户账号
+    std::string account = user_manager.Get_current_account();   // 用户账号
     std::string token = user_manager.Get_token(account);    // 用户token
 
     rpc_server::DeleteFileReq req;
@@ -195,7 +195,7 @@ void FileManager::Delete(std::string file_name_)
 // 获取文件列表服务
 void FileManager::ListFiles()
 {
-    std::string account = user_manager.Get_account();   // 用户账号
+    std::string account = user_manager.Get_current_account();   // 用户账号
     std::string token = user_manager.Get_token(account);    // 用户token
 
     rpc_server::ListFilesReq req;

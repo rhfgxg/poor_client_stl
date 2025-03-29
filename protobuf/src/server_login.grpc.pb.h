@@ -66,7 +66,7 @@ class LoginServer final {
     std::unique_ptr< ::grpc::ClientAsyncResponseReaderInterface< ::rpc_server::AuthenticateRes>> PrepareAsyncAuthenticate(::grpc::ClientContext* context, const ::rpc_server::AuthenticateReq& request, ::grpc::CompletionQueue* cq) {
       return std::unique_ptr< ::grpc::ClientAsyncResponseReaderInterface< ::rpc_server::AuthenticateRes>>(PrepareAsyncAuthenticateRaw(context, request, cq));
     }
-    // 令牌验证服务
+    // 令牌验证服务(服务器)
     virtual ::grpc::Status Change_password(::grpc::ClientContext* context, const ::rpc_server::ChangePasswordReq& request, ::rpc_server::ChangePasswordRes* response) = 0;
     std::unique_ptr< ::grpc::ClientAsyncResponseReaderInterface< ::rpc_server::ChangePasswordRes>> AsyncChange_password(::grpc::ClientContext* context, const ::rpc_server::ChangePasswordReq& request, ::grpc::CompletionQueue* cq) {
       return std::unique_ptr< ::grpc::ClientAsyncResponseReaderInterface< ::rpc_server::ChangePasswordRes>>(AsyncChange_passwordRaw(context, request, cq));
@@ -82,7 +82,7 @@ class LoginServer final {
     std::unique_ptr< ::grpc::ClientAsyncResponseReaderInterface< ::rpc_server::IsUserOnlineRes>> PrepareAsyncIs_user_online(::grpc::ClientContext* context, const ::rpc_server::IsUserOnlineReq& request, ::grpc::CompletionQueue* cq) {
       return std::unique_ptr< ::grpc::ClientAsyncResponseReaderInterface< ::rpc_server::IsUserOnlineRes>>(PrepareAsyncIs_user_onlineRaw(context, request, cq));
     }
-    // 检查用户是否在线
+    // 检查用户是否在线(服务器)
     class async_interface {
      public:
       virtual ~async_interface() {}
@@ -97,13 +97,13 @@ class LoginServer final {
       // 注册服务
       virtual void Authenticate(::grpc::ClientContext* context, const ::rpc_server::AuthenticateReq* request, ::rpc_server::AuthenticateRes* response, std::function<void(::grpc::Status)>) = 0;
       virtual void Authenticate(::grpc::ClientContext* context, const ::rpc_server::AuthenticateReq* request, ::rpc_server::AuthenticateRes* response, ::grpc::ClientUnaryReactor* reactor) = 0;
-      // 令牌验证服务
+      // 令牌验证服务(服务器)
       virtual void Change_password(::grpc::ClientContext* context, const ::rpc_server::ChangePasswordReq* request, ::rpc_server::ChangePasswordRes* response, std::function<void(::grpc::Status)>) = 0;
       virtual void Change_password(::grpc::ClientContext* context, const ::rpc_server::ChangePasswordReq* request, ::rpc_server::ChangePasswordRes* response, ::grpc::ClientUnaryReactor* reactor) = 0;
       // 修改密码服务
       virtual void Is_user_online(::grpc::ClientContext* context, const ::rpc_server::IsUserOnlineReq* request, ::rpc_server::IsUserOnlineRes* response, std::function<void(::grpc::Status)>) = 0;
       virtual void Is_user_online(::grpc::ClientContext* context, const ::rpc_server::IsUserOnlineReq* request, ::rpc_server::IsUserOnlineRes* response, ::grpc::ClientUnaryReactor* reactor) = 0;
-      // 检查用户是否在线
+      // 检查用户是否在线(服务器)
     };
     typedef class async_interface experimental_async_interface;
     virtual class async_interface* async() { return nullptr; }
@@ -225,11 +225,11 @@ class LoginServer final {
     virtual ::grpc::Status Register(::grpc::ServerContext* context, const ::rpc_server::RegisterReq* request, ::rpc_server::RegisterRes* response);
     // 注册服务
     virtual ::grpc::Status Authenticate(::grpc::ServerContext* context, const ::rpc_server::AuthenticateReq* request, ::rpc_server::AuthenticateRes* response);
-    // 令牌验证服务
+    // 令牌验证服务(服务器)
     virtual ::grpc::Status Change_password(::grpc::ServerContext* context, const ::rpc_server::ChangePasswordReq* request, ::rpc_server::ChangePasswordRes* response);
     // 修改密码服务
     virtual ::grpc::Status Is_user_online(::grpc::ServerContext* context, const ::rpc_server::IsUserOnlineReq* request, ::rpc_server::IsUserOnlineRes* response);
-    // 检查用户是否在线
+    // 检查用户是否在线(服务器)
   };
   template <class BaseClass>
   class WithAsyncMethod_Login : public BaseClass {
