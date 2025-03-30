@@ -13,7 +13,7 @@
 #include <sstream>
 
 void config();  // 读取客户端配置文件，初始化客户端配置
-// SHA256哈希加密函数（生成64位16禁止数）
+// SHA256哈希加密函数（生成64位16进制数）（HEX编码）
 std::string sha256(const std::string& str) {
     unsigned char hash[SHA256_DIGEST_LENGTH];
     SHA256_CTX sha256;
@@ -46,7 +46,7 @@ int main()
     //user_manager.Handle_register(user_name, hashed_password, email);    // 注册
     //user_manager.Handle_login(account, hashed_password);   // 登录
     //user_manager.Handle_logout(account);   // 登出
-    user_manager.Change_password(hashed_password, sha256("123456"));    // 修改密码
+    //user_manager.Change_password(hashed_password, sha256("123456"));    // 修改密码
 
     //FileManager file_manager(gateway_manager, user_manager);    // 文件管理器
     //file_manager.Upload("test.txt");  // 文件上传服务
