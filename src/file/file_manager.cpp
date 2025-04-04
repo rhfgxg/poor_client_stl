@@ -156,10 +156,11 @@ void FileManager::Download(std::string file_name_)
     auto file_stub = rpc_server::FileServer::NewStub(channel);
 
     // 创建文件以保存下载的数据
-    std::ofstream file(file_name_, std::ios::binary);
+    std::string file_path = "./download/" + file_name_; // 下载的文件路径
+    std::ofstream file(file_path, std::ios::binary);
     if(!file.is_open())
     {
-        logger_manager.getLogger(rpc_server::LogCategory::APPLICATION_ACTIVITY)->error("Failed to open file: {}", file_name_);
+        logger_manager.getLogger(rpc_server::LogCategory::APPLICATION_ACTIVITY)->error("Failed to open file: {}", file_path);
         return;
     }
 
@@ -176,7 +177,7 @@ void FileManager::Download(std::string file_name_)
 
     if(status.ok())
     {
-        logger_manager.getLogger(rpc_server::LogCategory::APPLICATION_ACTIVITY)->info("File download success");
+        logger_manager.getLogger(rpc_server::LogCategory::APPLICATION_ACTIVITY)->info("File download_path: " + file_path);
     }
     else
     {
