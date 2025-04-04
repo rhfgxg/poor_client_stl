@@ -48,9 +48,9 @@ int main()
     //user_manager.Handle_logout(account);   // 登出
     //user_manager.Change_password(hashed_password, sha256("123456"));    // 修改密码
 
-    //FileManager file_manager(gateway_manager, user_manager);    // 文件管理器
-    //file_manager.Upload("test.txt");  // 文件上传服务
-    //file_manager.Download("test.txt");  // 文件下载服务
+    FileManager file_manager(gateway_manager, user_manager);    // 文件管理器
+    //file_manager.Upload("D:/Project/cpp/APP/poor/poor_client_stl/config/test_file/_DSC0984.jpg");  // 文件上传服务
+    file_manager.Download("_DSC0984.jpg");  // 文件下载服务
     //file_manager.Delete("test.txt");    // 文件删除服务
     //file_manager.ListFiles();   // 获取文件列表服务
 

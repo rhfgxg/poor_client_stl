@@ -149,21 +149,38 @@ void FileManager::Download(std::string file_name_)
 
     // 初始化请求
     req.set_account(account);
-    req.file_name();
+    req.set_file_name(file_name_);
 
     // 建立文件服务器直连，进行上传
     auto channel = grpc::CreateChannel(file_server_address + ":" + file_server_port, grpc::InsecureChannelCredentials());
     auto file_stub = rpc_server::FileServer::NewStub(channel);
 
-    // 发送请求
-    grpc::Status status = file_stub->Download(&context, req, &res);
-    if(status.ok() && res.success())
+    // 创建文件以保存下载的数据
+    std::ofstream file(file_name_, std::ios::binary);
+    if(!file.is_open())
+    {
+        logger_manager.getLogger(rpc_server::LogCategory::APPLICATION_ACTIVITY)->error("Failed to open file: {}", file_name_);
+        return;
+    }
+
+    // 发送请求并接收流式响应
+    std::unique_ptr<grpc::ClientReader<rpc_server::DownloadRes>> reader(file_stub->Download(&context, req));
+    while(reader->Read(&res))
+    {
+        // 将接收到的数据写入文件
+        file.write(res.file_data().data(), res.file_data().size());
+    }
+
+    grpc::Status status = reader->Finish();
+    file.close();
+
+    if(status.ok())
     {
         logger_manager.getLogger(rpc_server::LogCategory::APPLICATION_ACTIVITY)->info("File download success");
     }
     else
     {
-        logger_manager.getLogger(rpc_server::LogCategory::APPLICATION_ACTIVITY)->error("File download failed");
+        logger_manager.getLogger(rpc_server::LogCategory::APPLICATION_ACTIVITY)->error("File download failed: {}", status.error_message());
     }
 }
 
