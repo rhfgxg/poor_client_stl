@@ -105,22 +105,40 @@ void FileManager::Upload(std::string file_name_)
     // 文件传输准备(服务器地址和端口通过引用参数返回)
     this->File_transmission_ready(file_name_, account, token, file_server_address, file_server_port);
 
-    // 文件上传
-    rpc_server::UploadReq req;
-    rpc_server::UploadRes res;
-    grpc::ClientContext context;
-
-    // 初始化请求
-    req.set_account(account);
-    req.file_name();
-    req.file_data();
-
     // 建立文件服务器直连，进行上传
     auto channel = grpc::CreateChannel(file_server_address + ":" + file_server_port, grpc::InsecureChannelCredentials());
     auto file_stub = rpc_server::FileServer::NewStub(channel);
 
-    // 发送请求
-    grpc::Status status = file_stub->Upload(&context, req, &res);
+    // 文件上传
+    rpc_server::UploadRes res;
+    grpc::ClientContext context;
+
+    std::unique_ptr<grpc::ClientWriter<rpc_server::UploadReq>> writer(file_stub->Upload(&context, &res));
+
+    std::ifstream file(file_name_, std::ios::binary);
+    if(!file.is_open())
+    {
+        logger_manager.getLogger(rpc_server::LogCategory::APPLICATION_ACTIVITY)->error("Failed to open input file: {}", file_name_);
+        return;
+    }
+
+    char buffer[1024];
+    while(file.read(buffer, sizeof(buffer)) || file.gcount() > 0)
+    {
+        rpc_server::UploadReq request;
+        request.set_account(account);
+        request.set_file_name(file_name_);
+        request.set_file_data(buffer, file.gcount());
+        if(!writer->Write(request))
+        {
+            // Broken stream
+            break;
+        }
+    }
+
+    file.close();
+    writer->WritesDone();
+    grpc::Status status = writer->Finish();
 
     if(status.ok() && res.success())
     {
@@ -128,7 +146,7 @@ void FileManager::Upload(std::string file_name_)
     }
     else
     {
-        logger_manager.getLogger(rpc_server::LogCategory::APPLICATION_ACTIVITY)->error("File upload failed");
+        logger_manager.getLogger(rpc_server::LogCategory::APPLICATION_ACTIVITY)->error("File upload failed: {}", status.error_message());
     }
 }
 
