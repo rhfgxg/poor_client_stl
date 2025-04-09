@@ -37,19 +37,21 @@ int main()
     const std::string account = "3056078308";
     const std::string password = "159357";
     const std::string email = "3056078308@qq.com";
+    const std::string phone = "";
+    const std::string id_number = "";
 
     std::string hashed_password = sha256(password); // 生成64位 16进制 哈希密码
 
     GatewayManager gateway_manager; // 网关管理器，单例
 
     UserManager user_manager(gateway_manager);  // 用户管理器
-    //user_manager.Handle_register(user_name, hashed_password, email);    // 注册
-    //user_manager.Handle_login(account, hashed_password);   // 登录
-    //user_manager.Handle_logout(account);   // 登出
+    user_manager.Register(user_name, hashed_password, email, phone, id_number);    // 注册
+    //user_manager.Login(account, hashed_password);   // 登录
+    //user_manager.Logout(account);   // 登出
     //user_manager.Change_password(hashed_password, sha256("123456"));    // 修改密码
 
-    FileManager file_manager(gateway_manager, user_manager);    // 文件管理器
-    file_manager.Upload("_DSC0984.ARW");  // 文件上传服务
+    //FileManager file_manager(gateway_manager, user_manager);    // 文件管理器
+    //file_manager.Upload("_DSC0984.ARW");  // 文件上传服务
     //file_manager.Download("_DSC0984.ARW");  // 文件下载服务
     //file_manager.Delete("test.txt");    // 文件删除服务
     //file_manager.ListFiles();   // 获取文件列表服务

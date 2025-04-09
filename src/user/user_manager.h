@@ -26,9 +26,9 @@ public:
     void start_thread_pool(int num_threads);    // 启动线程池
     void stop_thread_pool();    // 停止线程池
 
-    void Handle_register(const std::string user_name, const std::string password, const std::string email);    // 注册
-    void Handle_login(const std::string account, const std::string password);    // 登录
-    void Handle_logout();    // 登出
+    void Register(const std::string user_name, const std::string password, const std::string email, const std::string phone, const std::string id_number);    // 注册
+    void Login(const std::string account, const std::string password);    // 登录
+    void Logout();    // 登出
     void Change_password(const std::string old_password, const std::string new_password);   // 修改密码
     // 对外接口
     std::string Get_token(const std::string account) const;    // 获取token

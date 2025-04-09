@@ -126,13 +126,15 @@ void UserManager::Worker_thread()
 
 /************************************ gRPC服务接口工具函数 **************************************************/
 // 注册服务
-void UserManager::Handle_register(const std::string user_name, const std::string password, const std::string email)    // 注册
+void UserManager::Register(const std::string user_name, const std::string password, const std::string email, const std::string phone, const std::string id_number)    // 注册
 {
     rpc_server::RegisterReq req;   // 注册请求
     rpc_server::RegisterRes res;   // 注册响应
     req.set_user_name(user_name);  // 设置用户账号
     req.set_password(password); // 设置密码
     req.set_email(email);   // 设置邮箱
+    req.set_phone(phone); // 设置手机号码
+    req.set_id_number(id_number); // 设置身份证号码
     // 通过网关转发，向服务器发送请求
     grpc::Status status = gateway_manager.Request_forward(&req, &res, rpc_server::ServiceType::REQ_REGISTER);
     if(status.ok() && res.success())
@@ -146,7 +148,7 @@ void UserManager::Handle_register(const std::string user_name, const std::string
 }
 
 // 登录服务
-void UserManager::Handle_login(const std::string account, const std::string password)
+void UserManager::Login(const std::string account, const std::string password)
 {
     rpc_server::LoginReq req;	// 登录请求
     rpc_server::LoginRes res; // 登录响应
@@ -167,7 +169,7 @@ void UserManager::Handle_login(const std::string account, const std::string pass
 }
 
 // 登出服务
-void UserManager::Handle_logout()
+void UserManager::Logout()
 {
     rpc_server::LogoutReq req;  // 登出请求
     rpc_server::LogoutRes res;  // 登出响应
