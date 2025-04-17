@@ -12,26 +12,14 @@
 #include <iomanip>
 #include <sstream>
 
-void config();  // 读取客户端配置文件，初始化客户端配置
-// SHA256哈希加密函数（生成64位16进制数）（HEX编码）
-std::string sha256(const std::string& str) {
-    unsigned char hash[SHA256_DIGEST_LENGTH];
-    SHA256_CTX sha256;
-    SHA256_Init(&sha256);
-    SHA256_Update(&sha256, str.c_str(), str.size());
-    SHA256_Final(hash, &sha256);
-
-    std::stringstream ss;
-    for(int i = 0; i < SHA256_DIGEST_LENGTH; ++i) {
-        ss << std::hex << std::setw(2) << std::setfill('0') << (int)hash[i];
-    }
-    return ss.str();
-}
+void Test_plugin();   // 插件测试
+void Config();  // 读取客户端配置文件，初始化客户端配置
+std::string Sha256(const std::string& str); // SHA256哈希加密函数（生成64位16进制数）（HEX编码）
 
 // 主模块 main函数
 int main()
 {
-    config();   // 读取客户端配置文件，初始化客户端配置
+    Config();   // 读取客户端配置文件，初始化客户端配置
 
     const std::string user_name = "lhw";
     const std::string account = "3056078308";
@@ -40,7 +28,7 @@ int main()
     const std::string phone = "";
     const std::string id_number = "";
 
-    std::string hashed_password = sha256(password); // 生成64位 16进制 哈希密码
+    std::string hashed_password = Sha256(password); // 生成64位 16进制 哈希密码
 
     GatewayManager gateway_manager; // 网关管理器，单例
 
@@ -59,7 +47,8 @@ int main()
     return 0;
 }
 
-void test_plugin()
+// 插件测试
+void Test_plugin()
 {
     PluginManager plugin_manager;   // 插件管理器
 
@@ -87,7 +76,8 @@ void test_plugin()
     plugin_manager.UnloadPlugins();
 }
 
-void config()
+// 读取配置文件
+void Config()
 {
     // 读取配置文件
     std::ifstream config_file_in("./config/local.ini"); // 打开配置文件
@@ -124,4 +114,21 @@ void config()
         }
 
     }
+}
+
+// SHA256哈希加密函数（生成64位16进制数）（HEX编码）
+std::string Sha256(const std::string& str)
+{
+    unsigned char hash[SHA256_DIGEST_LENGTH];
+    SHA256_CTX sha256;
+    SHA256_Init(&sha256);
+    SHA256_Update(&sha256, str.c_str(), str.size());
+    SHA256_Final(hash, &sha256);
+
+    std::stringstream ss;
+    for(int i = 0; i < SHA256_DIGEST_LENGTH; ++i)
+    {
+        ss << std::hex << std::setw(2) << std::setfill('0') << (int)hash[i];
+    }
+    return ss.str();
 }
