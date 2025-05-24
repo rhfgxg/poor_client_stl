@@ -141,7 +141,8 @@ void UserManager::Register(const std::string user_name, const std::string passwo
     {
         this->logger_manager.getLogger(rpc_server::LogCategory::USER_ACTIVITY)->info("Register success");
         this->Save_token(res.account(), res.token());    // 保存/更新令牌
-    } else
+    }
+    else
     {
         this->logger_manager.getLogger(rpc_server::LogCategory::USER_ACTIVITY)->error("Register failed");
     }

@@ -29,7 +29,6 @@ include_directories(
     # 插件模块
     ${CMAKE_SOURCE_DIR}/src/plugins/file
     ${CMAKE_SOURCE_DIR}/src/plugins/logic
-
 )
 # 需要编译的源文件列表
 set(SOURCES
@@ -74,8 +73,9 @@ find_package(upb REQUIRED)
 find_package(dlfcn-win32 REQUIRED)
 
 # 下面的库无法使用 find_package 寻找，需要手动指定
-find_library(ADDRESS_SORTING_LIB address_sorting PATHS "${VCPKG_LIB}")  # address_sorting.lib, 用于 grpc
-find_library(DL_LIB dl PATHS "${VCPKG_LIB}")  # dl.lib, 用于 dlfcn-win32
+find_library(ADDRESS_SORTING_LIB NAMES address_sorting PATHS "${VCPKG_LIB}")  # address_sorting.lib, 用于 grpc
+find_library(DL_LIB NAMES dl PATHS "${VCPKG_LIB}")  # dl.lib, 用于 dlfcn-win32
+find_library(LIBZIP_LIB NAMES zip PATHS "${VCPKG_LIB}")  # libzip.lib, 用于 zip
 # 下面文件需要直接在子模块中使用路径引入
 
 # 链接第三方库lib
@@ -98,6 +98,7 @@ target_link_libraries(${PROJECT_NAME} PRIVATE
     Threads::Threads    # 多线程库
     ${ADDRESS_SORTING_LIB}  # address_sorting 库：用于gRPC的地址排序
     ${DL_LIB}  # dl 库：用于dlfcn-win32
+    ${LIBZIP_LIB}   # libzip 库：用于 zip
 )
 
 # 第三方库 dll列表
@@ -110,10 +111,13 @@ set(DLL_FILES
     "${VCPKG_DEBUG_BIN}/libcrypto-3-x64.dll"
     "${VCPKG_DEBUG_BIN}/abseil_dll.dll"
     "${VCPKG_BIN}/zlib1.dll"
+    "${VCPKG_DEBUG_BIN}/zlibd1.dll"
     "${VCPKG_DEBUG_BIN}/re2.dll"
     "${VCPKG_DEBUG_BIN}/cares.dll"
     "${VCPKG_DEBUG_BIN}/fmtd.dll"
     "${VCPKG_DEBUG_BIN}/spdlogd.dll"
+    "${VCPKG_DEBUG_BIN}/zip.dll"
+    "${VCPKG_DEBUG_BIN}/bz2d.dll"
 )
 # 复制其他dll文件到可执行文件所在目录
 foreach(DLL_FILE ${DLL_FILES})

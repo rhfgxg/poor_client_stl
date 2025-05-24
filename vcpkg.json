@@ -2,17 +2,10 @@
   "name": "poor-client-stl",
   "version": "1.0.0",
   "dependencies": [
-    {
-      "name": "boost"
-    },
-    {
-      "name": "grpc"
-    },
-    {
-      "name": "spdlog"
-    },
-    {
-      "name": "dlfcn-win32"
-    }
+    "boost",
+    "grpc",
+    "spdlog",
+    "dlfcn-win32",
+    "libzip"
   ]
 }

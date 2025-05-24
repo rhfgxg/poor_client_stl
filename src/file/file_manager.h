@@ -26,17 +26,17 @@ public:
     void start_thread_pool(int num_threads);    // 启动线程池
     void stop_thread_pool();    // 停止线程池
 
-    // 文件上传服务
-    void Upload(std::string file_name_);
+    // 文件上传服务(支持文件和文件夹)
+    void Upload(std::string folder_path_);
     // 文件下载服务
     void Download(std::string file_name_);
     // 文件删除服务
     void Delete(std::string file_name_);
-    // 获取文件列表服务
-    void ListFiles();
+    void ListFiles();   // 获取文件列表服务
 
 private:
     void FileManager::File_transmission_ready(const std::string file_name_, const std::string account_, const std::string token_, std::string &file_server_address_, std::string &file_server_port_);    // 文件传输准备
+    std::string Compress_to_zip(const std::string& input_path);    // 压缩文件或文件夹为 ZIP 文件
 
     std::future<void> add_async_task(std::function<void()> task); // 添加异步任务
     void Worker_thread();   // 执行线程的任务
