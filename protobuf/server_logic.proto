@@ -1,0 +1,38 @@
+syntax = "proto3";
+package rpc_server;
+
+// 逻辑服务器
+service LogicServer
+{
+    rpc Process_gameAction (GameActionReq) returns (GameActionRes); // 处理游戏操作
+    rpc Get_game_state (GameStateReq) returns (GameStateRes);    // 获取游戏状态
+}
+
+// 游戏操作请求
+message GameActionReq
+{
+    bytes action = 1;
+    map<string, bytes> parameters = 2;
+}
+// 游戏操作响应
+message GameActionRes
+{
+    bool success = 1;
+    bytes message = 2;
+}
+
+// 游戏状态请求
+message GameStateReq
+{
+    bytes game_id = 1;
+}
+// 游戏状态响应
+message GameStateRes
+{
+    bool success = 1;
+    bytes message = 2;
+    map<string, bytes> state = 3;
+}
+
+
+

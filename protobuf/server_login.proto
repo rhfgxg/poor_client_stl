@@ -1,0 +1,97 @@
+syntax = "proto3";
+package rpc_server;
+
+service LoginServer
+{
+    rpc Login (LoginReq) returns (LoginRes);   // 登录服务
+    rpc Logout (LogoutReq) returns (LogoutRes);  // 登出服务
+    rpc Register (RegisterReq) returns (RegisterRes);  // 注册服务
+    rpc Authenticate (AuthenticateReq) returns (AuthenticateRes);  // 令牌验证服务(服务器)
+    rpc Change_password (ChangePasswordReq) returns (ChangePasswordRes);  // 修改密码服务
+    rpc Is_user_online (IsUserOnlineReq) returns (IsUserOnlineRes); // 检查用户是否在线(服务器)
+}
+
+// 登录服务请求
+message LoginReq
+{
+    bytes account = 1;  // 账号
+    bytes password = 2; // 密码：RSA加密
+}
+// 登录服务响应
+message LoginRes
+{
+    bool success = 1;   // 操作结果
+    bytes message = 2; // 响应信息
+    bytes account = 3;  // 账号
+    bytes token = 4;  // 会话或令牌
+}
+
+// 登出服务请求
+message LogoutReq
+{
+    bytes account = 1;  // 账号
+    bytes token = 2;
+}
+// 登出服务响应
+message LogoutRes
+{
+    bool success = 1;
+    bytes message = 2;
+}
+
+// 注册服务请求
+message RegisterReq
+{
+    bytes user_name = 1;
+    bytes password = 2;
+    bytes email = 3;
+    bytes phone = 4;
+    bytes id_number = 5;
+}
+// 注册服务响应
+message RegisterRes
+{
+    bool success = 1;
+    bytes message = 2;
+    bytes account = 3;  // 账号
+    bytes token = 4;  // 令牌
+}
+
+// 令牌验证服务请求
+message AuthenticateReq
+{
+    bytes account = 1;
+    bytes token = 2;
+}
+// 令牌验证服务响应
+message AuthenticateRes
+{
+    bool success = 1;
+    bytes message = 2;
+}
+
+// 修改密码服务请求
+message ChangePasswordReq
+{
+    bytes account = 1;  // 账号
+    bytes token = 2;
+    bytes old_password = 3;     // 原密码：RSA加密
+    bytes new_password = 4;     // 新密码：RSA加密
+}
+// 修改密码服务响应
+message ChangePasswordRes
+{
+    bool success = 1;
+    bytes message = 2;
+}
+
+// 检查用户是否在线请求
+message IsUserOnlineReq {
+    bytes account = 1;  // 账号
+}
+// 检查用户是否在线响应
+message IsUserOnlineRes {
+    bool success = 1;
+    bytes message = 2;
+    bool is_online = 3; // 用户是否在线
+}

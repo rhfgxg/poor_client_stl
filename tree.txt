@@ -1,0 +1,99 @@
+/
+├─CMakeLists.txt	项目顶级 CMakeLists
+├─README.md	项目描述文件
+├─tree.txt	文件树
+├─vcpkg-configuration.json	vcpkg包管理器配置文件
+├─vcpkg.json	            vcpkg包管理器配置文件
+├─.editorconfig    VS 配置文件，可以设置文件编码格式为 utf-8（其他ide可忽略）
+│                         
+├─config	项目配置文件
+│      ├─DB_config.json	数据库配置文件：数据库名，表名，端口
+│      └─gateway_config.json	各服务器配置文件：地址，端口
+│  
+├─protobuf
+│  ├─CMakeLists.txt	protobuf模块的 CMakeLists文件
+│  │  
+│  ├─file       文件
+│  │   ├─server_file.grpc.pb.*	    生成 gRPC 服务类
+│  │   ├─server_file.pb.*	        生成类文件
+│  │   └─server_file.proto	        gRPC 定义文件
+│  │ 
+│  ├─gateway    网关
+│  ├─logic      逻辑                                         
+│  └─login      登录
+│          
+├─src
+│  ├─main.cpp		主模块的 main文件
+│  │ 
+│  ├─commont		公共模块
+│  │     ├─logger_manager.cpp
+│  │     ├─logger_manager.h
+│  │     ├─plugin_manager.cpp   # 插件管理器，管理插件的加载与卸载
+│  │     └─plugin_manager.h
+│  │ 
+│  ├─gateway		网关模块
+│  │  ├─CMakeLists.txt
+│  │  │  
+│  │  └─src
+│  │      ├─main.cpp
+│  │      │  
+│  │      └─gateway
+│  │             ├─gateway_server.cpp
+│  │             └─gateway_server.h
+│  │          
+│  ├─user			用户管理模块
+│  │ 
+│  └─plugins    插件模块
+│      ├─plugin_interface.h     # 插件接口 所有插件都要继承这个类，以实现插件的加载接口
+│      ├─file   文件模块
+│      └─logic  游戏模块
+│
+├─project_docunment      项目文档
+│                  
+├─tools		工具
+│  └─script	    脚本
+│        └─debug
+│             ├─protoc_make.cmd			生成所有 proto 文件与 gRPC服务
+│             └─cp_plugins.cmd          复制插件到 主模块执行文件目录
+│
+├─vcpkg_installed   vcpkg 第三方库安装目录
+│  ├─vcpkg
+│  └─x64-windows
+│       ├─bin                    relest 版本 dll文件
+│       │
+│       ├─debug                  debug版本的 dll文件和 lib文件
+│       │  ├─bin
+│       │  │
+│       │  └─lib
+│       │  
+│       ├─include       引用的头文件，项目中引用 第三方库头文件 以这个 include为根目录  
+│       │     
+│       └─lib                    relest 版本 lib文件
+│
+└─out   VS编译生成文件夹
+   ├─build
+   │   └─x64-Debug
+   │       │  libprotobufd.dll	顶级模块的链接文件
+   │       │  poor_client_stl.exe	顶级模块的执行文件
+   │       └─src
+   │           ├─central	中心服务器
+   │           │     └─central.exe		数据库服务器模块的执行文件
+   │           │  
+   │           ├─data
+   │           │     └─data.exe		数据库服务器模块的执行文件
+   │           │                              
+   │           ├─gateway
+   │           │     └─gateway.exe
+   │           │                              
+   │           └─login
+   │                 └─login.exe
+   │
+   └─install         安装目录
+       └─x64-Debug
+                └─bin    安装目录，包含所有服务器的执行文件
+
+
+
+
+
+

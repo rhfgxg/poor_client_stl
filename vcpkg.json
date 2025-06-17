@@ -1,0 +1,11 @@
+{
+  "name": "poor-client-stl",
+  "version": "1.0.0",
+  "dependencies": [
+    "boost",
+    "grpc",
+    "spdlog",
+    "dlfcn-win32",
+    "libzip"
+  ]
+}
