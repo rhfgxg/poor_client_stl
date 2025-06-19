@@ -26,32 +26,10 @@
 # 参与项目
 
 ## 项目规范
-[项目开发文档](project_document)
+[项目开发文档](docunment)
 
-## 开发环境建议
-### 操作系统
-windows 10 / 11
-linux（待验证）
-
-### 编译器
-#### Visual Studio 2022 配置
-1. 使用 VS 参与项目时，可以先下载下面的插件
-    FileEncoding
-    force utf-8 （no BOM）
-用来设置文件编码为 utf-8 无 BOM
-2. 使用配置文件 .editorconfig 来设置默认文件编码格式
-3. CMakeLists 文件添加编译选项
-```cmake
-# 设置编译选项
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /utf-8")
-add_compile_options(/wd4828)    # 忽略utf-8相关警告
-```
-
-### 第三方库管理工具
-vcpkg
-
-### 项目依赖及安装
-参考：[项目中使用的第三方库](project_document/library.md)
+## 开发环境配置
+[开发环境配置](docunment/client/配置和运行项目.md)
 
 ## 项目文件树，项目关键文件说明
 [文件树](tree.txt)

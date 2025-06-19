@@ -2,6 +2,7 @@
   "name": "poor-client-stl",
   "version": "1.0.0",
   "dependencies": [
+    "abseil",
     "boost",
     "grpc",
     "spdlog",
