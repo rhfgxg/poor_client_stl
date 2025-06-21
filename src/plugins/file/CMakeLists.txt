@@ -57,10 +57,6 @@ find_package(spdlog REQUIRED)
 find_package(ZLIB REQUIRED)
 find_package(upb REQUIRED)
 
-# 下面的库无法使用 find_package 寻找，需要手动指定
-find_library(ADDRESS_SORTING_LIB address_sorting PATHS "${VCPKG_LIB}")  # address_sorting.lib, 用于 grpc
-# 下面文件需要直接在子模块中使用路径引入
-
 # 链接第三方库lib
 target_link_libraries(${PROJECT_NAME} PRIVATE 
 # 注释了一些暂时不需要的库
@@ -77,7 +73,6 @@ target_link_libraries(${PROJECT_NAME} PRIVATE
 #    upb::upb
     gRPC::grpc++
     spdlog::spdlog
-    ${ADDRESS_SORTING_LIB}  # address_sorting 库：用于gRPC的地址排序
 )
 
 # 第三方库 dll列表

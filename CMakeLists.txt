@@ -71,12 +71,7 @@ find_package(spdlog REQUIRED)
 find_package(ZLIB REQUIRED)
 find_package(upb REQUIRED)
 find_package(dlfcn-win32 REQUIRED)
-
-# 下面的库无法使用 find_package 寻找，需要手动指定
-find_library(ADDRESS_SORTING_LIB NAMES address_sorting PATHS "${VCPKG_LIB}")  # address_sorting.lib, 用于 grpc
-find_library(DL_LIB NAMES dl PATHS "${VCPKG_LIB}")  # dl.lib, 用于 dlfcn-win32
-find_library(LIBZIP_LIB NAMES zip PATHS "${VCPKG_LIB}")  # libzip.lib, 用于 zip
-# 下面文件需要直接在子模块中使用路径引入
+find_package(libzip CONFIG REQUIRED)
 
 # 链接第三方库lib
 target_link_libraries(${PROJECT_NAME} PRIVATE
@@ -96,9 +91,8 @@ target_link_libraries(${PROJECT_NAME} PRIVATE
     gRPC::grpc++
     spdlog::spdlog
     Threads::Threads    # 多线程库
-    ${ADDRESS_SORTING_LIB}  # address_sorting 库：用于gRPC的地址排序
-    ${DL_LIB}  # dl 库：用于dlfcn-win32
-    ${LIBZIP_LIB}   # libzip 库：用于 zip
+    dlfcn-win32::dl
+    libzip::zip
 )
 
 # 第三方库 dll列表
