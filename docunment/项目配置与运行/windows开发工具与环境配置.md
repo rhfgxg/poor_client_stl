@@ -36,7 +36,6 @@ iwr -useb get.scoop.sh | iex
 5. 安装软件
 scoop install mysql
 scoop install redis
-scoop install vcpkg
 
 6. 将三个工具添加到系统环境变量
 
@@ -56,24 +55,8 @@ redis-server.exe
 项目根目录下有一个 vcpkg.json 文件，里面列出了项目所需的第三方库
 
 ### 安装 vcpkg
-#### 手动安装（源码安装）
-```
-1. clone github上的vcpkg源码：
-git clone https://github.com/Microsoft/vcpkg
-
-2. 进入 vcpkg 目录，执行脚本：
-bootstrap-vcpkg.bat
-
-3. 将 vcpkg 添加到系统环境变量
-
-4. 链接系统内所有的c++编译器
-vcpkg integrate install
-```
-
-#### 使用 scoop 安装（推荐）
-```
-scoop install vcpkg
-```
+不需要安装，vs2022 自带 vcpkg
+路径：vs安装目录/VC/vcpkg
 
 ### 将 vcpkg 添加到系统环境变量
 在 设置-系统-高级系统设置-环境变量-系统变量 中添加
@@ -82,14 +65,11 @@ scoop install vcpkg
 编辑变量：Path，添加 vcpkg 的安装目录
 ```
 
-### 安装第三方库
+### 安装
 在项目根目录下打开终端，执行：
 ```
 vcpkg install
 ```
-
-### 第三方库介绍
-参考：[项目中使用的第三方库](library.md)
 
 ### 安装第三方库时遇到的错误
 
@@ -231,6 +211,3 @@ endif()
 - 作用：在保存文件时，自动将文件保存为 utf-8编码
 2. FileEncoding
 - 作用：在右下角查看并设置本文件编码
-
-
-# ubuntu 开发环境要求与配置
