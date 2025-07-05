@@ -97,22 +97,7 @@ void Config()
     }
     else
     {
-        // 创建默认配置文件
-        std::ofstream config_file_out("./config/local.ini");    // 打开配置文件
-        if(config_file_out.is_open())
-        {
-            // 默认配置
-            content = "log_dir=./logs\n";   // 日志目录
-
-            // 写入
-            config_file_out << content;
-            config_file_out.close();
-        }
-        else
-        {
-            std::cout << "Failed to create config file" << std::endl;
-        }
-
+        std::cout << "Failed to create config file" << std::endl;
     }
 }
 
