@@ -12,11 +12,19 @@ LocalConfig& LocalConfig::Get_config()
 // 初始化配置数据对象
 void LocalConfig::Init(const std::string& file_path_)
 {
+/*
+* 打开并读取配置文件内容，保存字段值到对应成员中
+* 如果配置文件不存在，则创建一个新的配置文件，并使用默认值初始化各个字段
+* 如果配置文件缺少某些字段，则使用默认值初始化这些字段，不保存到配置文件
+* 如果配置文件中某个字段的值为空，则将其初始化为默认值，不保存到配置文件
+*/
+
     file_path = file_path_; // 保存配置文件路径
+
+    Default_value(); // 为数据设置默认值
 
     std::ifstream in(file_path);
     std::string line;
-    // 打开并读取文件内容
     while(std::getline(in, line))
     {
         std::istringstream iss(line);
@@ -31,8 +39,24 @@ void LocalConfig::Init(const std::string& file_path_)
             else if(key == "dir_download") dir_download = value;
             else if(key == "dir_recently_open") dir_recently_open = value;
 
+            else if(key == "accounts") accounts = value;
+            else if(key == "current_account") current_account = value;
         }
     }
+}
+
+// 为配置数据设置默认值
+void LocalConfig::Default_value()
+{
+    client_version = "0";
+    client_token = "";
+
+    dir_log = "./logs";
+    dir_download = "./downloads";
+    dir_recently_open = "";
+
+    accounts = "";
+    current_account = "";
 }
 
 // 更新配置数据对象
@@ -44,6 +68,9 @@ void LocalConfig::Update(const std::string& key, const std::string& value)
     else if(key == "dir_log") dir_log = value;
     else if(key == "dir_download") dir_download = value;
     else if(key == "dir_recently_open") dir_recently_open = value;
+
+    else if(key == "accounts") accounts = value;
+    else if(key == "current_account") current_account = value;
 
     // 保存到配置文件
     std::ofstream out(file_path, std::ios::app);
@@ -69,4 +96,7 @@ void LocalConfig::Update_temporary(const std::string& key, const std::string& va
     else if(key == "dir_log") dir_log = value;
     else if(key == "dir_download") dir_download = value;
     else if(key == "dir_recently_open") dir_recently_open = value;
+
+    else if(key == "accounts") accounts = value;
+    else if(key == "current_account") current_account = value;
 }

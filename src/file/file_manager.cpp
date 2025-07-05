@@ -1,5 +1,6 @@
 #include "file_manager.h"
 #include "common.grpc.pb.h" //公共文件：包含服务类型等
+#include "local_config.h"
 #include <fstream>  // 文件流
 #include <zip.h>    // libzip库
 #include <filesystem>   // 文件系统库
@@ -177,6 +178,7 @@ void FileManager::Download(std::string file_name_)
     std::string token = user_manager.Get_token(account);
     std::string file_server_address = "";
     std::string file_server_port = "";
+    std::string save_die = LocalConfig::Get_config().dir_download; // 保存目录
 
     this->File_transmission_ready(file_name_, account, token, file_server_address, file_server_port);
 
@@ -190,7 +192,7 @@ void FileManager::Download(std::string file_name_)
     auto channel = grpc::CreateChannel(file_server_address + ":" + file_server_port, grpc::InsecureChannelCredentials());
     auto file_stub = rpc_server::FileServer::NewStub(channel);
 
-    std::string zip_file_path = "./download/" + file_name_;
+    std::string zip_file_path = save_die + file_name_;
     std::ofstream zip_file(zip_file_path, std::ios::binary);
     if(!zip_file.is_open())
     {
@@ -224,7 +226,7 @@ void FileManager::Download(std::string file_name_)
         return;
     }
 
-    std::string output_folder = "./download/" + file_name_.substr(0, file_name_.find_last_of('.'));
+    std::string output_folder = save_die + file_name_.substr(0, file_name_.find_last_of('.'));
     std::filesystem::create_directories(output_folder);
 
     for(zip_int64_t i = 0; i < zip_get_num_entries(zip, 0); ++i)
@@ -299,7 +301,6 @@ void FileManager::ListFiles()
         logger_manager.getLogger(rpc_server::LogCategory::APPLICATION_ACTIVITY)->error("File list failed");
     }
 }
-
 
 /************************************ 定时任务 ********************************************************/
 

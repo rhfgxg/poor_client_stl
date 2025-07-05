@@ -1,5 +1,5 @@
 #include "user_manager.h"
-
+#include "local_config.h"  // 本地配置文件数据类
 #include <fstream>
 #include <iostream>
 
@@ -7,34 +7,11 @@ UserManager::UserManager(GatewayManager& gateway_manager_):
     logger_manager(),
     gateway_manager(gateway_manager_)
 {
-    std::ifstream config_file_in("./config/local.ini"); // 打开配置文件
-    if(config_file_in.is_open())
-    {
-        std::string line;
-        bool account_field_found = false;   // 是否找到当前登录账号字段
-        while(std::getline(config_file_in, line))  // 逐行读取
-        {
-            if(line.find("current_account=") == 0)   // 找到 当前账号 字段
-            {
-                // 获取当前登录账号，如果没有找到，则设置为空
-                current_account = line.substr(strlen("current_account=")); // 读取账号：substr参数1：开始位置，参数2：结束位置（默认行尾）
-                account_field_found = true;
-                break;
-            }
-        }
+    // 使用配置文件中的数据用来登录
+    // 如果没有登录过账号，则设置为空字符串 
+    current_account = LocalConfig::Get_config().accounts;
 
-        if(!account_field_found)    // 没有找到当前登录账号字段
-        {
-            current_account = "";   // 设置为空
-        }
-        config_file_in.close();
-    }
-    else
-    {
-        logger_manager.getLogger(rpc_server::LogCategory::STARTUP_SHUTDOWN)->error("Unable to open file: /config/local.ini"); // 打开文件失败
-    }
     start_thread_pool(10);  // 启动线程池
-
     // 启动定时任务
 
     logger_manager.getLogger(rpc_server::LogCategory::STARTUP_SHUTDOWN)->info("Login Service started"); // 启动日志
@@ -130,17 +107,21 @@ void UserManager::Register(const std::string user_name, const std::string passwo
 {
     rpc_server::RegisterReq req;   // 注册请求
     rpc_server::RegisterRes res;   // 注册响应
-    req.set_user_name(user_name);  // 设置用户账号
+    req.set_user_name(user_name);  // 设置用户名
     req.set_password(password); // 设置密码
     req.set_email(email);   // 设置邮箱
     req.set_phone(phone); // 设置手机号码
     req.set_id_number(id_number); // 设置身份证号码
     // 通过网关转发，向服务器发送请求
     grpc::Status status = gateway_manager.Request_forward(&req, &res, rpc_server::ServiceType::REQ_REGISTER);
-    if(status.ok() && res.success())
+
+    if(status.ok() && res.success())    // 注册并登录成功
     {
         this->logger_manager.getLogger(rpc_server::LogCategory::USER_ACTIVITY)->info("Register success");
-        this->Save_token(res.account(), res.token());    // 保存/更新令牌
+        this->Save_token(res.account(), res.token());    // 保存注册到的账号和令牌
+
+        // 将登录的账号和密码保存到配置文件中
+        LocalConfig::Get_config().Update("accounts", res.account() + ":" + password + ";");
     }
     else
     {
@@ -162,6 +143,9 @@ void UserManager::Login(const std::string account, const std::string password)
     {
         this->logger_manager.getLogger(rpc_server::LogCategory::USER_ACTIVITY)->info("Login success");
         this->Save_token(res.account(), res.token());    // 保存/更新令牌
+
+        // 将登录的账号和密码保存到配置文件中
+        LocalConfig::Get_config().Update("accounts", account + ":" + password + ";");
     }
     else
     {
@@ -185,6 +169,9 @@ void UserManager::Logout()
     if(status.ok() && res.success())
     {
         this->logger_manager.getLogger(rpc_server::LogCategory::USER_ACTIVITY)->info("Logout success");
+
+        // 删除配置文件中的登录账号
+        LocalConfig::Get_config().Update("accounts", "");
     }
     else
     {
@@ -221,7 +208,7 @@ void UserManager::Change_password(const std::string old_password, const std::str
 // 获取token
 std::string UserManager::Get_token(const std::string account_) const
 {
-    std::ifstream config_file_in("./config/local.ini"); // 打开配置文件
+    std::ifstream config_file_in("./config/config.ini"); // 打开配置文件
     std::string token;  // 令牌
     bool token_field_found = false; // 是否找到 token
     if(config_file_in.is_open())
@@ -254,7 +241,7 @@ std::string UserManager::Get_token(const std::string account_) const
 // 获取账号
 std::string UserManager::Get_current_account() const
 {
-    std::ifstream config_file_in("./config/local.ini"); // 打开配置文件
+    std::ifstream config_file_in("./config/config.ini"); // 打开配置文件
     std::string account = "";    // 账号
     bool account_field_found = false;   // 是否找到当前登录账号字段
     if(config_file_in.is_open())
@@ -282,7 +269,7 @@ std::string UserManager::Get_current_account() const
 // 保存令牌
 void UserManager::Save_token(const std::string& account, const std::string& token)
 {
-    std::ifstream config_file_in("./config/local.ini"); // 打开配置文件
+    std::ifstream config_file_in("./config/config.ini"); // 打开配置文件
     std::string content;    // 配置文件内容
     bool token_field_found = false; // 是否找到 token 字段
     bool account_field_found = false; // 是否找到 account 字段
@@ -332,7 +319,7 @@ void UserManager::Save_token(const std::string& account, const std::string& toke
         content += "current_account=" + account + "\n";
     }
 
-    std::ofstream config_file_out("./config/local.ini");    // 打开配置文件
+    std::ofstream config_file_out("./config/config.ini");    // 打开配置文件
     if (config_file_out.is_open())
     {
         config_file_out << content;

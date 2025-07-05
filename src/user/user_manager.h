@@ -29,7 +29,8 @@ public:
     void Register(const std::string user_name, const std::string password, const std::string email, const std::string phone, const std::string id_number);    // 注册
     void Login(const std::string account, const std::string password);    // 登录
     void Logout();    // 登出
-    void Change_password(const std::string old_password, const std::string new_password);   // 修改密码
+    void Change_password(const std::string old_password, const std::string new_password);   // 修改密码（需要重新登录）
+
     // 对外接口
     std::string Get_token(const std::string account) const;    // 获取token
     std::string Get_current_account() const;    // 获取当前登录账号

@@ -22,11 +22,16 @@ public:
     std::string dir_download;   // 下载目录
     std::string dir_recently_open;  // 最近打开目录
 
+    std::string accounts;   // 账号密码列表，格式为 "account1:password1;account2:password2;..."
+    std::string current_account; // 当前登录账号
+
 private:
     // 禁用构造和复制函数
     LocalConfig() = default; // 构造函数私有
     LocalConfig(const LocalConfig&) = delete;
     LocalConfig& operator=(const LocalConfig&) = delete;
+
+    void Default_value(); // 配置数据默认值
 
     std::string file_path; // 配置文件路径
 };

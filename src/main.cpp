@@ -50,7 +50,7 @@ void Test()
     //user_manager.Change_password(hashed_password, sha256("123456"));    // 修改密码
 
 // 网盘相关测试
-    file_manager.Upload("C:/Users/lhw/Pictures/DCIM/花鸟鱼虫/_DSC0984.ARW");  // 文件上传服务
+    file_manager.Upload("./download/_DSC0984.ARW");  // 文件上传服务
     //file_manager.Download(LocalConfig::Get_config().dir_download);  // 文件下载服务
     //file_manager.Delete("test.txt");    // 文件删除服务
     //file_manager.ListFiles();   // 获取文件列表服务
@@ -89,7 +89,7 @@ void Test_plugin()
 void Init_client()
 {
     LocalConfig::Get_config().Init("./config/config.ini"); // 初始化配置数据对象
-    // LocalConfig::Get_config().client_version;   // 获取对象保存数据
+    // LocalConfig::Get_config().client_version;   // 获取对象保存的数据
 }
 
 // SHA256哈希加密函数（生成64位16进制数）（HEX编码）
