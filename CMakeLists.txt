@@ -41,6 +41,7 @@ set(SOURCES
     ${CMAKE_SOURCE_DIR}/src/common/logger_manager.cpp
     ${CMAKE_SOURCE_DIR}/src/common/plugin_manager.cpp
     ${CMAKE_SOURCE_DIR}/src/common/connection_pool.cpp
+    ${CMAKE_SOURCE_DIR}/src/common/local_config.cpp
     # proto生成的源文件
     ${CMAKE_SOURCE_DIR}/protobuf/src/common.grpc.pb.cc
     ${CMAKE_SOURCE_DIR}/protobuf/src/common.pb.cc

@@ -3,6 +3,7 @@
 #include "user_manager.h"   // 用户管理器
 #include "gateway_manager.h"    // 网关管理器
 #include "file_manager.h"   // 文件管理器
+#include "local_config.h"  // 本地配置文件数据类
 
 #include <string>
 #include <fstream>
@@ -50,7 +51,7 @@ void Test()
 
 // 网盘相关测试
     file_manager.Upload("C:/Users/lhw/Pictures/DCIM/花鸟鱼虫/_DSC0984.ARW");  // 文件上传服务
-    //file_manager.Download("_DSC0984.ARW");  // 文件下载服务
+    //file_manager.Download(LocalConfig::Get_config().dir_download);  // 文件下载服务
     //file_manager.Delete("test.txt");    // 文件删除服务
     //file_manager.ListFiles();   // 获取文件列表服务
 }
@@ -84,29 +85,11 @@ void Test_plugin()
     plugin_manager.UnloadPlugins();
 }
 
-// 读取配置文件
+// 初始化客户端
 void Init_client()
 {
-    // 读取配置文件
-    std::ifstream config_file_in("./config/local.ini"); // 打开配置文件
-    std::string content;    // 配置文件内容
-    // 初始化客户端配置
-
-    // 如果配置文件不存在，创建默认配置文件
-    if(config_file_in.is_open())
-    {
-        // 读取配置文件内容
-        std::string line;
-        while(std::getline(config_file_in, line))
-        {
-            content += line;
-        }
-        config_file_in.close();
-    }
-    else
-    {
-        std::cout << "Failed to create config file" << std::endl;
-    }
+    LocalConfig::Get_config().Init("./config/config.ini"); // 初始化配置数据对象
+    // LocalConfig::Get_config().client_version;   // 获取对象保存数据
 }
 
 // SHA256哈希加密函数（生成64位16进制数）（HEX编码）
