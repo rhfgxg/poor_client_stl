@@ -12,39 +12,47 @@
 #include <iomanip>
 #include <sstream>
 
+void Test();   // 测试函数
 void Test_plugin();   // 插件测试
-void Config();  // 读取客户端配置文件，初始化客户端配置
+void Init_client();  //初始化客户端
 std::string Sha256(const std::string& str); // SHA256哈希加密函数（生成64位16进制数）（HEX编码）
 
 // 主模块 main函数
 int main()
 {
-    Config();   // 读取客户端配置文件，初始化客户端配置
+    Init_client();   // 读取客户端配置文件，初始化客户端配置
 
+    Test();  // 测试函数
+    return 0;
+}
+
+// 测试函数
+void Test()
+{
+// 基础数据和对象初始化
     const std::string user_name = "lhw";
     const std::string account = "3056078308";
     const std::string password = "159357";
+    std::string hashed_password = Sha256(password); // 生成64位 16进制 哈希密码
     const std::string email = "3056078308@qq.com";
     const std::string phone = "";
     const std::string id_number = "";
 
-    std::string hashed_password = Sha256(password); // 生成64位 16进制 哈希密码
-
     GatewayManager gateway_manager; // 网关管理器，单例
-
     UserManager user_manager(gateway_manager);  // 用户管理器
+    FileManager file_manager(gateway_manager, user_manager);    // 文件管理器
+
+// 用户相关测试
     //user_manager.Register(user_name, hashed_password, email, phone, id_number);    // 注册
     //user_manager.Login(account, hashed_password);   // 登录
     //user_manager.Logout(account);   // 登出
     //user_manager.Change_password(hashed_password, sha256("123456"));    // 修改密码
 
-    FileManager file_manager(gateway_manager, user_manager);    // 文件管理器
+// 网盘相关测试
     file_manager.Upload("C:/Users/lhw/Pictures/DCIM/花鸟鱼虫/_DSC0984.ARW");  // 文件上传服务
     //file_manager.Download("_DSC0984.ARW");  // 文件下载服务
     //file_manager.Delete("test.txt");    // 文件删除服务
     //file_manager.ListFiles();   // 获取文件列表服务
-
-    return 0;
 }
 
 // 插件测试
@@ -77,7 +85,7 @@ void Test_plugin()
 }
 
 // 读取配置文件
-void Config()
+void Init_client()
 {
     // 读取配置文件
     std::ifstream config_file_in("./config/local.ini"); // 打开配置文件
