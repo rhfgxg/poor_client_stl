@@ -6,13 +6,13 @@ rem 配置文件复制到 可执行文件同级的 /config 中
 rem 项目文件根目录
 set SCRIPT_DIR=%~dp0
 set PROJECT_DIR=%SCRIPT_DIR%..\..
-rem 配置文件目录
+rem 配置文件(源码)目录
 set CONFIG_DIR=%PROJECT_DIR%\config
 rem 生成文件目录
 set DEBUG_OUT_DIR=%PROJECT_DIR%\out\build\x64-debug
 
-rem 子模块配置文件目录
-set OUT_CONFIG_DIR=%DEBUG_OUT_DIR%\src\config
+rem 配置文件(可执行文件)目录
+set OUT_CONFIG_DIR=%DEBUG_OUT_DIR%\config
 
 rem 创建文件夹
 if not exist %OUT_CONFIG_DIR% mkdir %OUT_CONFIG_DIR%
