@@ -344,7 +344,7 @@ std::string FileManager::Compress_to_zip(const std::string& input_path)
     }
 
     // 生成 ZIP 文件名
-    std::string zip_file_name = "./cache/upload/file/" + fs_path.filename().string() + ".zip";
+    std::string zip_file_name = LocalConfig::Get_config().dir_cache + "/upload/file/" + fs_path.filename().string() + ".zip";
 
     // 创建 ZIP 文件
     int error = 0;
