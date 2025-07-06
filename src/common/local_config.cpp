@@ -38,6 +38,7 @@ void LocalConfig::Init(const std::string& file_path_)
             else if(key == "dir_log") dir_log = value;
             else if(key == "dir_download") dir_download = value;
             else if(key == "dir_recently_open") dir_recently_open = value;
+            else if(key == "dir_cache") dir_cache = value;
 
             else if(key == "accounts") accounts = value;
             else if(key == "current_account") current_account = value;
@@ -54,6 +55,7 @@ void LocalConfig::Default_value()
     dir_log = "./logs";
     dir_download = "./downloads";
     dir_recently_open = "";
+    dir_cache = "./cache";
 
     accounts = "";
     current_account = "";
@@ -68,6 +70,7 @@ void LocalConfig::Update(const std::string& key, const std::string& value)
     else if(key == "dir_log") dir_log = value;
     else if(key == "dir_download") dir_download = value;
     else if(key == "dir_recently_open") dir_recently_open = value;
+    else if(key == "dir_cache") dir_cache = value;
 
     else if(key == "accounts") accounts = value;
     else if(key == "current_account") current_account = value;

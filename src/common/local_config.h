@@ -21,6 +21,7 @@ public:
     std::string dir_log;    // 日志目录
     std::string dir_download;   // 下载目录
     std::string dir_recently_open;  // 最近打开目录
+    std::string dir_cache; // 缓存目录
 
     std::string accounts;   // 账号密码列表，格式为 "account1:password1;account2:password2;..."
     std::string current_account; // 当前登录账号

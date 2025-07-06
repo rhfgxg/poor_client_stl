@@ -344,37 +344,47 @@ std::string FileManager::Compress_to_zip(const std::string& input_path)
     }
 
     // 生成 ZIP 文件名
-    std::string zip_file_name = fs_path.filename().string() + ".zip";
+    std::string zip_file_name = "./cache/upload/file/" + fs_path.filename().string() + ".zip";
 
     // 创建 ZIP 文件
     int error = 0;
     zip_t* zip = zip_open(zip_file_name.c_str(), ZIP_CREATE | ZIP_TRUNCATE, &error);
-    if(!zip) {
+    if(!zip)
+    {
         throw std::runtime_error("Failed to create ZIP file: " + zip_file_name);
     }
 
-    try {
-        if(std::filesystem::is_regular_file(fs_path)) {
+    try
+    {
+        if(std::filesystem::is_regular_file(fs_path))
+        {
             // 如果是文件，直接添加到 ZIP
             std::ifstream file(fs_path, std::ios::binary);
-            if(!file.is_open()) {
+            if(!file.is_open())
+            {
                 zip_close(zip);
                 throw std::runtime_error("Failed to open file: " + fs_path.string());
             }
 
             std::string file_content((std::istreambuf_iterator<char>(file)), std::istreambuf_iterator<char>());
             zip_source_t* source = zip_source_buffer(zip, file_content.data(), file_content.size(), 0);
-            if(!source || zip_file_add(zip, fs_path.filename().string().c_str(), source, ZIP_FL_OVERWRITE) < 0) {
+            if(!source || zip_file_add(zip, fs_path.filename().string().c_str(), source, ZIP_FL_OVERWRITE) < 0)
+            {
                 zip_source_free(source);
                 zip_close(zip);
                 throw std::runtime_error("Failed to add file to ZIP: " + fs_path.string());
             }
-        } else if(std::filesystem::is_directory(fs_path)) {
+        }
+        else if(std::filesystem::is_directory(fs_path))
+        {
             // 如果是文件夹，递归添加文件到 ZIP
-            for(const auto& entry : std::filesystem::recursive_directory_iterator(fs_path, std::filesystem::directory_options::skip_permission_denied)) {
-                if(entry.is_regular_file()) {
+            for(const auto& entry : std::filesystem::recursive_directory_iterator(fs_path, std::filesystem::directory_options::skip_permission_denied))
+            {
+                if(entry.is_regular_file())
+                {
                     std::ifstream file(entry.path(), std::ios::binary);
-                    if(!file.is_open()) {
+                    if(!file.is_open())
+                    {
                         std::cerr << "Warning: Failed to open file: " << entry.path().string() << std::endl;
                         continue;
                     }
@@ -382,17 +392,22 @@ std::string FileManager::Compress_to_zip(const std::string& input_path)
                     std::string file_content((std::istreambuf_iterator<char>(file)), std::istreambuf_iterator<char>());
                     std::string relative_path = std::filesystem::relative(entry.path(), fs_path).string();
                     zip_source_t* source = zip_source_buffer(zip, file_content.data(), file_content.size(), 0);
-                    if(!source || zip_file_add(zip, relative_path.c_str(), source, ZIP_FL_OVERWRITE) < 0) {
+                    if(!source || zip_file_add(zip, relative_path.c_str(), source, ZIP_FL_OVERWRITE) < 0)
+                    {
                         zip_source_free(source);
                         std::cerr << "Warning: Failed to add file to ZIP: " << entry.path().string() << std::endl;
                     }
                 }
             }
-        } else {
+        }
+        else
+        {
             zip_close(zip);
             throw std::runtime_error("Unsupported path type: " + input_path);
         }
-    } catch(const std::exception& e) {
+    }
+    catch(const std::exception& e)
+    {
         zip_close(zip);
         throw; // 重新抛出异常
     }

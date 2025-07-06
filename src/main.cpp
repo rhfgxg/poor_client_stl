@@ -16,6 +16,7 @@
 void Test();   // 测试函数
 void Test_plugin();   // 插件测试
 void Init_client();  //初始化客户端
+void Self_inspection(); // 自检函数
 std::string Sha256(const std::string& str); // SHA256哈希加密函数（生成64位16进制数）（HEX编码）
 
 // 主模块 main函数
@@ -88,8 +89,48 @@ void Test_plugin()
 // 初始化客户端
 void Init_client()
 {
+    Self_inspection(); // 自检函数，环境及资源自检
+
     LocalConfig::Get_config().Init("./config/config.ini"); // 初始化配置数据对象
-    // LocalConfig::Get_config().client_version;   // 获取对象保存的数据
+}
+
+// 自检函数
+void Self_inspection()
+{
+/*
+* 自检函数：检查必要的文件夹和配置文件是否存在
+*/
+
+// 必须文件夹检查
+    // 需要检查的文件夹列表
+    std::vector<std::string> folders = {
+        "./config", // 配置文件夹
+        "./log",    // 默认日志文件夹
+        "./download",    // 默认下载文件夹
+        "./cache/upload/file",      // 上传文件缓存
+        "./cache/download/file",    // 下载文件缓存
+        "./cache/local"            // 本地缓存
+    };
+
+    for(const auto& folder : folders)
+    {
+        std::error_code ec;
+        if(!std::filesystem::exists(folder))    // 文件夹不存在时创建
+        {
+            if(std::filesystem::create_directories(folder, ec)) // 创建文件夹
+            {
+                std::cout << "已创建文件夹: " << folder << std::endl;
+            }
+            else if(ec)
+            {
+                std::cerr << "创建文件夹失败: " << folder << "，错误: " << ec.message() << std::endl;
+            }
+        }
+    }
+
+// 文件检查
+    // 配置文件
+    // 配置文件异常时，自动生成默认配置文件（使用联网下载可能会出现下载错误）
 }
 
 // SHA256哈希加密函数（生成64位16进制数）（HEX编码）
