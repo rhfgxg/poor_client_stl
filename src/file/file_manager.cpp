@@ -100,27 +100,23 @@ void FileManager::Worker_thread()
 // 文件上传服务
 void FileManager::Upload(std::string path)
 {
-    std::string zip_file_name;
-    try
+    std::filesystem::path fs_path(path);
+
+    // 检查路径是否存在
+    if(!std::filesystem::exists(fs_path))
     {
-        // 调用压缩函数，将文件打包压缩为 ZIP 文件
-        zip_file_name = this->Compress_to_zip(path);
-        logger_manager.getLogger(rpc_server::LogCategory::APPLICATION_ACTIVITY)->info("Path compressed to ZIP: {}", zip_file_name);
-    }
-    catch(const std::exception& e)
-    {
-        logger_manager.getLogger(rpc_server::LogCategory::APPLICATION_ACTIVITY)->error("Compression failed: {}", e.what());
-        return;
+        throw std::runtime_error("Path does not exist: " + path);
     }
 
-    // 上传 ZIP 文件
+    // 上传文件
     std::string account = this->user_manager.Get_current_account();
     std::string token = this->user_manager.Get_token(account);
     std::string file_server_address = "";
     std::string file_server_port = "";
+    std::string file_name = fs_path.filename().string();    // 获取文件名
 
     // 获取文件服务器地址和端口
-    this->File_transmission_ready(zip_file_name, account, token, file_server_address, file_server_port);
+    this->File_transmission_ready(file_name, account, token, file_server_address, file_server_port);
 
     // 创建与文件服务器直连
     auto channel = grpc::CreateChannel(file_server_address + ":" + file_server_port, grpc::InsecureChannelCredentials());
@@ -132,21 +128,21 @@ void FileManager::Upload(std::string path)
     // 调用上传服务
     std::unique_ptr<grpc::ClientWriter<rpc_server::UploadReq>> writer(file_stub->Upload(&context, &res));
 
-    std::ifstream zip_file(zip_file_name, std::ios::binary);
-    if(!zip_file.is_open())
+    std::ifstream file(path, std::ios::binary);
+    if(!file.is_open())
     {
-        logger_manager.getLogger(rpc_server::LogCategory::APPLICATION_ACTIVITY)->error("Failed to open ZIP file: {}", zip_file_name);
+        logger_manager.getLogger(rpc_server::LogCategory::APPLICATION_ACTIVITY)->error("Failed to open ZIP file: {}", path);
         return;
     }
 
     // 写入上传数据流
     char buffer[1024];  // 缓冲区大小
-    while(zip_file.read(buffer, sizeof(buffer)) || zip_file.gcount() > 0)
+    while(file.read(buffer, sizeof(buffer)) || file.gcount() > 0)
     {
         rpc_server::UploadReq request;
         request.set_account(account);
-        request.set_file_name(zip_file_name);
-        request.set_file_data(buffer, zip_file.gcount());
+        request.set_file_name(file_name);
+        request.set_file_data(buffer, file.gcount());
         if(!writer->Write(request))
         {
             break;
@@ -154,7 +150,7 @@ void FileManager::Upload(std::string path)
     }
 
     // 关闭文件，请求流，结束上传
-    zip_file.close();
+    file.close();
     writer->WritesDone();
     grpc::Status status = writer->Finish();
 
@@ -166,9 +162,6 @@ void FileManager::Upload(std::string path)
     {
         logger_manager.getLogger(rpc_server::LogCategory::APPLICATION_ACTIVITY)->error("File upload failed: {}", status.error_message());
     }
-
-    // 删除临时 ZIP 文件
-    std::filesystem::remove(zip_file_name);
 }
 
 // 文件下载服务
@@ -178,7 +171,7 @@ void FileManager::Download(std::string file_name_)
     std::string token = user_manager.Get_token(account);
     std::string file_server_address = "";
     std::string file_server_port = "";
-    std::string save_die = LocalConfig::Get_config().dir_download; // 保存目录
+    std::string save_die = LocalConfig::Get_config().dir_download; // 下载目录
 
     this->File_transmission_ready(file_name_, account, token, file_server_address, file_server_port);
 
@@ -192,65 +185,21 @@ void FileManager::Download(std::string file_name_)
     auto channel = grpc::CreateChannel(file_server_address + ":" + file_server_port, grpc::InsecureChannelCredentials());
     auto file_stub = rpc_server::FileServer::NewStub(channel);
 
-    std::string zip_file_path = save_die + file_name_;
-    std::ofstream zip_file(zip_file_path, std::ios::binary);
-    if(!zip_file.is_open())
+    std::ofstream file(save_die + file_name_, std::ios::binary);
+    if(!file.is_open())
     {
-        logger_manager.getLogger(rpc_server::LogCategory::APPLICATION_ACTIVITY)->error("Failed to open ZIP file: {}", zip_file_path);
+        logger_manager.getLogger(rpc_server::LogCategory::APPLICATION_ACTIVITY)->error("Failed to open file: {}", save_die + file_name_);
         return;
     }
 
     std::unique_ptr<grpc::ClientReader<rpc_server::DownloadRes>> reader(file_stub->Download(&context, req));
     while(reader->Read(&res))
     {
-        zip_file.write(res.file_data().data(), res.file_data().size());
+        file.write(res.file_data().data(), res.file_data().size());
     }
 
     grpc::Status status = reader->Finish();
-    zip_file.close();
-
-    if(!status.ok())
-    {
-        logger_manager.getLogger(rpc_server::LogCategory::APPLICATION_ACTIVITY)->error("File download failed: {}", status.error_message());
-        return;
-    }
-
-    logger_manager.getLogger(rpc_server::LogCategory::APPLICATION_ACTIVITY)->info("ZIP file downloaded: {}", zip_file_path);
-
-    // 解压 ZIP 文件
-    int error = 0;
-    zip_t* zip = zip_open(zip_file_path.c_str(), ZIP_RDONLY, &error);
-    if(!zip)
-    {
-        logger_manager.getLogger(rpc_server::LogCategory::APPLICATION_ACTIVITY)->error("Failed to open ZIP file: {}", zip_file_path);
-        return;
-    }
-
-    std::string output_folder = save_die + file_name_.substr(0, file_name_.find_last_of('.'));
-    std::filesystem::create_directories(output_folder);
-
-    for(zip_int64_t i = 0; i < zip_get_num_entries(zip, 0); ++i)
-    {
-        const char* file_name = zip_get_name(zip, i, 0);
-        if(!file_name) continue;
-
-        std::string output_path = output_folder + "/" + file_name;
-        zip_file_t* file = zip_fopen_index(zip, i, 0);
-        if(!file) continue;
-
-        std::ofstream out_file(output_path, std::ios::binary);
-        char buffer[1024];
-        zip_int64_t bytes_read;
-        while((bytes_read = zip_fread(file, buffer, sizeof(buffer))) > 0)
-        {
-            out_file.write(buffer, bytes_read);
-        }
-
-        zip_fclose(file);
-    }
-
-    zip_close(zip);
-    logger_manager.getLogger(rpc_server::LogCategory::APPLICATION_ACTIVITY)->info("ZIP file extracted to: {}", output_folder);
+    file.close();
 }
 
 // 文件删除服务
@@ -354,9 +303,10 @@ std::string FileManager::Compress_to_zip(const std::string& input_path)
         throw std::runtime_error("Failed to create ZIP file: " + zip_file_name);
     }
 
+    // 添加文件或文件夹数据到 ZIP
     try
     {
-        if(std::filesystem::is_regular_file(fs_path))
+        if(std::filesystem::is_regular_file(fs_path))   // 文件
         {
             // 如果是文件，直接添加到 ZIP
             std::ifstream file(fs_path, std::ios::binary);
@@ -366,8 +316,11 @@ std::string FileManager::Compress_to_zip(const std::string& input_path)
                 throw std::runtime_error("Failed to open file: " + fs_path.string());
             }
 
+            // 读取文件内容到字符串
             std::string file_content((std::istreambuf_iterator<char>(file)), std::istreambuf_iterator<char>());
-            zip_source_t* source = zip_source_buffer(zip, file_content.data(), file_content.size(), 0);
+
+            // 创建 zip_source 对象，将文件内容添加到 ZIP
+            zip_source_t* source = zip_source_buffer(zip, file_content.data(), file_content.size(), 1);
             if(!source || zip_file_add(zip, fs_path.filename().string().c_str(), source, ZIP_FL_OVERWRITE) < 0)
             {
                 zip_source_free(source);
@@ -375,13 +328,14 @@ std::string FileManager::Compress_to_zip(const std::string& input_path)
                 throw std::runtime_error("Failed to add file to ZIP: " + fs_path.string());
             }
         }
-        else if(std::filesystem::is_directory(fs_path))
+        else if(std::filesystem::is_directory(fs_path)) // 文件夹
         {
             // 如果是文件夹，递归添加文件到 ZIP
             for(const auto& entry : std::filesystem::recursive_directory_iterator(fs_path, std::filesystem::directory_options::skip_permission_denied))
             {
                 if(entry.is_regular_file())
                 {
+                    // 打开每个文件
                     std::ifstream file(entry.path(), std::ios::binary);
                     if(!file.is_open())
                     {
@@ -389,8 +343,11 @@ std::string FileManager::Compress_to_zip(const std::string& input_path)
                         continue;
                     }
 
+                    // 读取文件内容到字符串
                     std::string file_content((std::istreambuf_iterator<char>(file)), std::istreambuf_iterator<char>());
+                    // 计算相对路径，保持目录结构
                     std::string relative_path = std::filesystem::relative(entry.path(), fs_path).string();
+                    // 创建 zip_source 对象，将文件内容添加到 ZIP
                     zip_source_t* source = zip_source_buffer(zip, file_content.data(), file_content.size(), 0);
                     if(!source || zip_file_add(zip, relative_path.c_str(), source, ZIP_FL_OVERWRITE) < 0)
                     {
