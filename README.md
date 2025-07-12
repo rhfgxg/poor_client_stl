@@ -1,7 +1,7 @@
 # poor_server_stl 项目介绍
 本项目是主要使用c++ QT库 实现的一个客户端
 对应服务端项目：https://github.com/rhfgxg/poor_server_stl
-在 tools 文件夹下，会有一些工具脚本，用来辅助开发
+在 tools 文件夹下，会有一些工具脚本，用来辅助开发 
 
 本客户端只用来做服务器接口测试
 
